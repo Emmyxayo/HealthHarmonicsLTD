@@ -842,10 +842,10 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Phone</label><input type="tel" id="c-phone" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Type of Consultation</label>
       <select id="c-type">
-        <option>Medical Consultation (₦5,000)</option>
-        <option>Surgical Consultation (₦10,000)</option>
-        <option>Second Opinion (₦8,000)</option>
-        <option>Follow-up Care (₦3,000)</option>
+        <option>Medical Consultation (₦30,000)</option>
+        <option>Surgical Consultation (₦40,000)</option>
+        <option>Second Opinion (₦20,000)</option>
+        <option>Follow-up Care (₦15,000)</option>
       </select>
     </div>
     <div class="form-group"><label>Brief Description (optional)</label><textarea id="c-desc" placeholder="Describe your concern..."></textarea></div>
@@ -882,7 +882,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Phone</label><input type="tel" id="so-phone" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Tell us your story &amp; why you need a second opinion</label><textarea id="so-diag" rows="5" placeholder="Share your health journey — what diagnosis were you given, what treatment was recommended, what concerns you, and why you're seeking another perspective. The more detail, the better we can help you..."></textarea></div>
     <div class="form-group"><label>Any Relevant Tests / Reports?</label><input type="text" placeholder="e.g. MRI, blood work, biopsy results (you can email files to info@healthharmonics.com)"></div>
-    <button class="btn-submit" onclick="paystackSecondOpinion()">Pay ₦8,000 &amp; Submit 🔒</button>
+    <button class="btn-submit" onclick="paystackSecondOpinion()">Pay ₦20,000 &amp; Submit 🔒</button>
   </div>
 </div>
 
@@ -906,7 +906,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Experience Level</label>
       <select><option>Complete Beginner</option><option>Intermediate</option><option>Advanced</option></select>
     </div>
-    <button class="btn-submit" onclick="paystackMusic()">Pay ₦15,000/month &amp; Enroll 🔒</button>
+    <button class="btn-submit" onclick="paystackMusic()">Pay ₦20,000/month &amp; Enroll 🔒</button>
   </div>
 </div>
 
@@ -968,7 +968,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <div class="calendar-title" style="margin-top:12px">🕐 Preferred Time</div>
       <div class="time-slots" id="timeSlots2"></div>
     </div>
-    <button class="btn-submit" onclick="paystackWellness()">Pay ₦6,000 &amp; Book Session 🔒</button>
+    <button class="btn-submit" onclick="paystackWellness()">Pay ₦30,000 &amp; Book Session 🔒</button>
   </div>
 </div>
 
@@ -986,12 +986,12 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Phone</label><input type="tel" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Choose Your Challenge</label>
       <select id="ch-type">
-        <option>30-Day Weight Management Challenge (₦5,000)</option>
-        <option>21-Day Fitness &amp; Movement Challenge (₦4,000)</option>
-        <option>14-Day Mindfulness &amp; Mental Wellness Challenge (₦3,500)</option>
-        <option>28-Day Clean Eating Challenge (₦4,500)</option>
-        <option>30-Day No-Sugar Challenge (₦3,000)</option>
-        <option>Custom Challenge — Let's Design One Together (₦7,000)</option>
+        <option>30-Day Weight Management Challenge (₦20,000)</option>
+        <option>21-Day Fitness &amp; Movement Challenge (₦20,000)</option>
+        <option>14-Day Mindfulness &amp; Mental Wellness Challenge (₦20,000)</option>
+        <option>28-Day Clean Eating Challenge (₦20,000)</option>
+        <option>30-Day No-Sugar Challenge (₦20,000)</option>
+        <option>Custom Challenge — Let's Design One Together (₦20,000)</option>
       </select>
     </div>
     <div class="form-group"><label>Participating As</label>
@@ -1003,7 +1003,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       </select>
     </div>
     <div class="form-group"><label>Any existing health conditions we should know about?</label><textarea placeholder="e.g. diabetes, hypertension, joint issues — so we can tailor the challenge safely for you..."></textarea></div>
-    <button class="btn-submit" onclick="paystackChallenge()">Register &amp; Pay 🔒</button>
+    <button class="btn-submit" onclick="paystackChallenge()">Register &amp; Pay ₦20,000 🔒</button>
   </div>
 </div>
 
@@ -1164,17 +1164,27 @@ function paystackConsult() {
   const email = document.getElementById('c-email').value;
   const name = document.getElementById('c-fname').value + ' ' + document.getElementById('c-lname').value;
   const type = document.getElementById('c-type').value;
-  const price = type.includes('10,000') ? 10000 : type.includes('8,000') ? 8000 : type.includes('3,000') ? 3000 : 5000;
+  const price = type.includes('40,000') ? 40000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
   paystackPay(email, price, {name, type, date:selectedDate?.toDateString(), time:selectedTime});
 }
 function paystackSecondOpinion() {
   const email = document.getElementById('so-email').value;
   const name = document.getElementById('so-fname').value + ' ' + document.getElementById('so-lname').value;
-  paystackPay(email, 8000, {name, service:'Second Opinion'});
+  paystackPay(email, 20000, {name, service:'Second Opinion'});
 }
 function paystackMusic() {
   const email = document.getElementById('m-email').value;
-  paystackPay(email, 15000, {service:'Music Education'});
+  paystackPay(email, 20000, {service:'Music Education'});
+}
+function paystackWellness() {
+  const email = document.getElementById('w-email').value;
+  const name = (document.getElementById('w-fname').value + ' ' + document.getElementById('w-lname').value).trim();
+  paystackPay(email, 30000, {name, service:'Wellness & Lifestyle Medicine Consultation'});
+}
+function paystackChallenge() {
+  const email = document.getElementById('ch-email').value;
+  const type = document.getElementById('ch-type').value;
+  paystackPay(email, 20000, {service:'Health Challenge', challenge:type});
 }
 
 // ── NEWSLETTER (Mailchimp) ──
