@@ -925,9 +925,56 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Delivery Address</label><input type="text" placeholder="Street, City, State"></div>
     <div class="form-group"><label>Products Needed</label><textarea placeholder="List medications or medical equipment needed..."></textarea></div>
     <div class="form-group"><label>Do you have a prescription?</label>
-      <select><option>Yes, I have a prescription</option><option>No, I need guidance</option></select>
+      <select id="sh-rx" onchange="toggleRxUpload(this.value)">
+        <option value="yes">Yes, I have a prescription</option>
+        <option value="no">No, I need guidance</option>
+      </select>
     </div>
-    <button class="btn-submit" onclick="submitForm('Medical Shop Order')">Place Enquiry</button>
+
+    <!-- PRESCRIPTION UPLOAD -->
+    <div id="rx-upload-wrap" style="margin-top:4px">
+      <label style="display:block;font-size:.83rem;font-weight:600;color:var(--navy);margin-bottom:8px">
+        📎 Upload Your Prescription
+      </label>
+      <div id="rx-dropzone"
+        onclick="document.getElementById('rx-file-input').click()"
+        ondragover="rxDragOver(event)"
+        ondragleave="rxDragLeave(event)"
+        ondrop="rxDrop(event)"
+        style="
+          border:2px dashed var(--border);border-radius:14px;
+          padding:28px 20px;text-align:center;cursor:pointer;
+          background:var(--off);transition:all .25s;
+          position:relative;
+        ">
+        <div id="rx-placeholder">
+          <div style="font-size:2.2rem;margin-bottom:8px">📷</div>
+          <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:4px">Snap &amp; upload your prescription</div>
+          <div style="font-size:.8rem;color:var(--muted)">Drag &amp; drop here, or <span style="color:var(--blue);font-weight:600">browse files</span></div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:6px">Accepts JPG, PNG, PDF &bull; Max 10MB</div>
+        </div>
+        <div id="rx-preview" style="display:none">
+          <img id="rx-img-preview" src="" alt="Prescription preview"
+            style="max-width:100%;max-height:180px;border-radius:10px;object-fit:contain;margin-bottom:10px">
+          <div id="rx-file-name" style="font-size:.82rem;color:var(--navy);font-weight:600"></div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:4px" id="rx-file-size"></div>
+          <button type="button" onclick="rxClear(event)"
+            style="margin-top:10px;background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:5px 14px;font-size:.78rem;cursor:pointer;transition:all .2s"
+            onmouseover="this.style.background='#dc3545';this.style.color='#fff'"
+            onmouseout="this.style.background='none';this.style.color='#dc3545'">
+            ✕ Remove &amp; re-upload
+          </button>
+        </div>
+      </div>
+      <input type="file" id="rx-file-input" accept="image/*,.pdf" capture="environment"
+        style="display:none" onchange="rxFileSelected(this)">
+      <p style="font-size:.75rem;color:var(--muted);margin-top:8px;line-height:1.5">
+        🔒 Your prescription is handled confidentially and used only to process your order.
+        You can also take a photo directly from your phone camera.
+      </p>
+    </div>
+
+    <button class="btn-submit" onclick="submitShopOrder()" style="margin-top:18px">Place Enquiry →</button>
   </div>
 </div>
 
@@ -1185,6 +1232,91 @@ function paystackChallenge() {
   const email = document.getElementById('ch-email').value;
   const type = document.getElementById('ch-type').value;
   paystackPay(email, 20000, {service:'Health Challenge', challenge:type});
+}
+
+// ── PRESCRIPTION UPLOAD ──
+function toggleRxUpload(val) {
+  const wrap = document.getElementById('rx-upload-wrap');
+  wrap.style.display = val === 'yes' ? 'block' : 'none';
+}
+
+function rxDragOver(e) {
+  e.preventDefault();
+  const dz = document.getElementById('rx-dropzone');
+  dz.style.borderColor = 'var(--blue)';
+  dz.style.background = 'var(--lb)';
+}
+
+function rxDragLeave(e) {
+  const dz = document.getElementById('rx-dropzone');
+  dz.style.borderColor = 'var(--border)';
+  dz.style.background = 'var(--off)';
+}
+
+function rxDrop(e) {
+  e.preventDefault();
+  rxDragLeave(e);
+  const file = e.dataTransfer.files[0];
+  if(file) rxProcessFile(file);
+}
+
+function rxFileSelected(input) {
+  const file = input.files[0];
+  if(file) rxProcessFile(file);
+}
+
+function rxProcessFile(file) {
+  const maxSize = 10 * 1024 * 1024;
+  if(file.size > maxSize) { showToast('⚠️ File too large. Please keep it under 10MB.'); return; }
+  const allowed = ['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
+  if(!allowed.includes(file.type)) { showToast('⚠️ Please upload a JPG, PNG, or PDF file.'); return; }
+
+  const dz = document.getElementById('rx-dropzone');
+  dz.style.borderColor = 'var(--teal)';
+  dz.style.borderStyle = 'solid';
+  dz.style.background = '#edfaf7';
+
+  document.getElementById('rx-placeholder').style.display = 'none';
+  document.getElementById('rx-preview').style.display = 'block';
+  document.getElementById('rx-file-name').textContent = '✅ ' + file.name;
+  document.getElementById('rx-file-size').textContent = (file.size/1024).toFixed(1) + ' KB';
+
+  if(file.type !== 'application/pdf') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('rx-img-preview').src = e.target.result;
+      document.getElementById('rx-img-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    document.getElementById('rx-img-preview').style.display = 'none';
+    document.getElementById('rx-file-name').textContent = '📄 ' + file.name + ' (PDF)';
+  }
+  window._rxFile = file;
+}
+
+function rxClear(e) {
+  e.stopPropagation();
+  const dz = document.getElementById('rx-dropzone');
+  dz.style.borderColor = 'var(--border)';
+  dz.style.borderStyle = 'dashed';
+  dz.style.background = 'var(--off)';
+  document.getElementById('rx-placeholder').style.display = 'block';
+  document.getElementById('rx-preview').style.display = 'none';
+  document.getElementById('rx-file-input').value = '';
+  document.getElementById('rx-img-preview').src = '';
+  window._rxFile = null;
+}
+
+function submitShopOrder() {
+  const hasPx = document.getElementById('sh-rx').value === 'yes';
+  if(hasPx && !window._rxFile) {
+    showToast('⚠️ Please upload your prescription before submitting.');
+    return;
+  }
+  closeAllModals();
+  showToast('✅ Order enquiry received! Our team will contact you shortly.');
+  window._rxFile = null;
 }
 
 // ── NEWSLETTER (Mailchimp) ──
