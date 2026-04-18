@@ -6,6 +6,20 @@
 <title>Health Harmonics Ltd. – Your Well-being, In Perfect Harmony</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // ── EMAILJS INIT ──
+  // SETUP INSTRUCTIONS (one-time, free):
+  // 1. Go to https://www.emailjs.com and create a free account
+  // 2. Add a Gmail service → connect healthharmonicshub@gmail.com → copy the Service ID
+  // 3. Create an Email Template (use the template variables below) → copy the Template ID
+  // 4. Go to Account → API Keys → copy your Public Key
+  // 5. Replace the three values below:
+  const EMAILJS_SERVICE_ID  = 'service_2d3otvk';
+  const EMAILJS_TEMPLATE_ID = 'template_7zcd5my';
+  const EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+</script>
 <style>
 :root{
   --navy:#0a2540;--blue:#1a6faf;--sky:#2196c4;--teal:#1b7c8a;
@@ -1088,6 +1102,14 @@ function submitForm(type) {
   document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
   document.body.style.overflow='';
   showToast('✅ Thank you! We\'ll be in touch soon.');
+  sendDoctorAlert(
+    '📋 New Enquiry – ' + type,
+    [
+      'TYPE: '   + type,
+      'DATE: '   + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      'STATUS: ' + 'Submitted (no payment required)',
+    ].join('\n')
+  );
 }
 
 // ── BACK TO TOP ──
@@ -1184,6 +1206,20 @@ function selectTime(t) {
 // ── PAYSTACK ──
 const PAYSTACK_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Replace with your real key
 
+// ── DOCTOR EMAIL ALERT ──
+function sendDoctorAlert(subject, details) {
+  const params = {
+    to_email:    'healthharmonicshub@gmail.com',
+    to_name:     'Health Harmonics Team',
+    subject:     subject,
+    message:     details,
+    reply_to:    details.patient_email || 'noreply@healthharmonics.com'
+  };
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(() => console.log('✅ Doctor alert sent'))
+    .catch(err => console.warn('EmailJS error:', err));
+}
+
 function paystackPay(email, amount, meta, onSuccess) {
   if(!email) { showToast('⚠️ Please enter your email address'); return; }
   const handler = PaystackPop.setup({
@@ -1195,6 +1231,23 @@ function paystackPay(email, amount, meta, onSuccess) {
     callback: function(res) {
       closeAllModals();
       showToast('✅ Payment successful! Reference: '+res.reference);
+      // ── Notify doctor ──
+      const naira = new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format(amount);
+      sendDoctorAlert(
+        '💳 New Payment Received – ' + (meta.service || 'Health Harmonics'),
+        [
+          'SERVICE: '    + (meta.service   || 'N/A'),
+          'PATIENT: '    + (meta.name      || email),
+          'EMAIL: '      + email,
+          'AMOUNT: '     + naira,
+          'REFERENCE: '  + res.reference,
+          'DATE: '       + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+          meta.type    ? 'TYPE: '      + meta.type    : '',
+          meta.date    ? 'APPT DATE: ' + meta.date    : '',
+          meta.time    ? 'APPT TIME: ' + meta.time    : '',
+          meta.challenge ? 'CHALLENGE: ' + meta.challenge : '',
+        ].filter(Boolean).join('\n')
+      );
       if(onSuccess) onSuccess(res);
     },
     onClose: function() { showToast('ℹ️ Payment window closed.'); }
@@ -1314,8 +1367,19 @@ function submitShopOrder() {
     showToast('⚠️ Please upload your prescription before submitting.');
     return;
   }
+  const shopEmail = document.getElementById('sh-email').value || 'Not provided';
   closeAllModals();
   showToast('✅ Order enquiry received! Our team will contact you shortly.');
+  sendDoctorAlert(
+    '🛒 New Medical Shop Order Enquiry',
+    [
+      'SERVICE: Medical Shop Order',
+      'PATIENT EMAIL: ' + shopEmail,
+      'PRESCRIPTION: '  + (hasPx ? ('Yes — file: ' + (window._rxFile ? window._rxFile.name : 'uploaded')) : 'No prescription'),
+      'DATE: '          + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      'NOTE: Patient has submitted a shop enquiry. Please follow up promptly.',
+    ].join('\n')
+  );
   window._rxFile = null;
 }
 
@@ -1331,6 +1395,14 @@ function subscribeNewsletter(e) {
   fetch(MC_URL+'&EMAIL='+encodeURIComponent(email)+'&FNAME='+encodeURIComponent(name)+'&f_id=xxx&c=?', {mode:'no-cors'})
     .catch(()=>{});
   showToast('✅ '+name+', you\'re subscribed! Check your inbox soon.');
+  sendDoctorAlert(
+    '📧 New Newsletter Subscriber',
+    [
+      'NAME: '  + name,
+      'EMAIL: ' + email,
+      'DATE: '  + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+    ].join('\n')
+  );
   document.getElementById('nlName').value='';
   document.getElementById('nlEmail').value='';
 }
