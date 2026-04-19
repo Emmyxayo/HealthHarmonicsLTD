@@ -2,9 +2,58 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Health Harmonics Ltd. – Your Well-being, In Perfect Harmony</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<!-- Firebase: loaded synchronously so firebase is defined before any inline script uses it -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  (function() {
+    var firebaseConfig = {
+      apiKey:            "AIzaSyBn46kTMbthNieJy0SCOg1FRZ8vylJDOPs",
+      authDomain:        "healthharmonics-830cd.firebaseapp.com",
+      projectId:         "healthharmonics-830cd",
+      storageBucket:     "healthharmonics-830cd.firebasestorage.app",
+      messagingSenderId: "281865920155",
+      appId:             "1:281865920155:web:8003c148335b4e864b303e"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    var _db = firebase.firestore();
+
+    window.saveRegistration = function(data) {
+      return _db.collection('registrations').add(
+        Object.assign({}, data, {
+          createdAt: new Date().toISOString(),
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+      ).then(function() {
+        console.log('Saved:', data.service);
+      }).catch(function(e) {
+        console.warn('Firestore error:', e);
+      });
+    };
+
+    window.loadAllRegistrations = function() {
+      return _db.collection('registrations')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then(function(snap) {
+          var results = [];
+          snap.forEach(function(doc) {
+            results.push(Object.assign({ id: doc.id }, doc.data()));
+          });
+          return results;
+        });
+    };
+
+    window._firebaseReady = true;
+    console.log('Firebase ready');
+  })();
+</script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -20,6 +69,10 @@
   const EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 </script>
+
+<!-- Firebase SDK -->
+
+
 <style>
 :root{
   --navy:#0a2540;--blue:#1a6faf;--sky:#2196c4;--teal:#1b7c8a;
@@ -481,7 +534,9 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <a href="#" onclick="showPage('about');return false">About Us</a>
     <a href="#" onclick="showPage('blog');return false">Blog</a>
     <a href="#trivia" onclick="showPage('home');setTimeout(()=>document.getElementById('trivia').scrollIntoView({behavior:'smooth'}),100)">Health Quiz</a>
+      <a href="#" onclick="openModal('orderpay');return false">💳 Pay for My Order</a>
     <a href="#testimonials" onclick="showPage('home');setTimeout(()=>document.getElementById('testimonials').scrollIntoView({behavior:'smooth'}),100)">Testimonials</a>
+    <a href="#" onclick="openModal('orderpay');return false" style="color:var(--teal);font-weight:700">💳 Pay Order</a>
     <a href="#" class="nav-cta" onclick="openModal('consultation');return false">Book Now</a>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
@@ -504,6 +559,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <a href="#" class="btn-primary" onclick="openModal('consultation');return false">📅 Book a Consultation</a>
       <a href="#" class="btn-primary" style="background:#1b7c8a;box-shadow:0 6px 20px rgba(27,124,138,.4)" onclick="openModal('shop');return false">💊 Shop Medical Supplies</a>
       <a href="#" class="btn-outline" onclick="openModal('secondopinion');return false">🔍 Get a Second Opinion</a>
+      <a href="#" class="btn-outline" onclick="openModal('orderpay');return false">💳 Pay for My Order</a>
       <a href="#services" class="btn-outline">🎵 Explore Services</a>
     </div>
     <div class="hero-stats">
@@ -812,10 +868,12 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <a href="#" onclick="showPage('about');return false">About Us</a>
       <a href="#" onclick="showPage('blog');return false">Blog / Videos</a>
       <a href="#trivia" onclick="showPage('home');setTimeout(()=>document.getElementById('trivia').scrollIntoView({behavior:'smooth'}),100)">Health Quiz</a>
+      <a href="#" onclick="showPage('admin');return false" style="color:rgba(255,255,255,.3);font-size:.78rem">🔐 Staff Portal</a>
+      <a href="#" onclick="openModal('orderpay');return false">💳 Pay for My Order</a>
     </div>
     <div class="footer-col">
       <h5>Contact</h5>
-      <a href="mailto:info@healthharmonics.com">✉ info@healthharmonics.com</a>
+      <a href="mailto:healthharmonicshub@gmail.com">✉ healthharmonicshub@gmail.com</a>
       <a href="tel:+2348081620395">📞 +234 808 162 0395</a>
       <a href="https://wa.me/2348081620395" target="_blank">💬 WhatsApp Us</a>
       <p style="font-size:.82rem;margin-top:8px;color:rgba(255,255,255,.45)">🕐 Mon–Sat: 8AM – 6PM WAT</p>
@@ -895,7 +953,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Email</label><input type="email" id="so-email" placeholder="your@email.com"></div>
     <div class="form-group"><label>Phone</label><input type="tel" id="so-phone" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Tell us your story &amp; why you need a second opinion</label><textarea id="so-diag" rows="5" placeholder="Share your health journey — what diagnosis were you given, what treatment was recommended, what concerns you, and why you're seeking another perspective. The more detail, the better we can help you..."></textarea></div>
-    <div class="form-group"><label>Any Relevant Tests / Reports?</label><input type="text" placeholder="e.g. MRI, blood work, biopsy results (you can email files to info@healthharmonics.com)"></div>
+    <div class="form-group"><label>Any Relevant Tests / Reports?</label><input type="text" placeholder="e.g. MRI, blood work, biopsy results (you can email files to healthharmonicshub@gmail.com)"></div>
     <button class="btn-submit" onclick="paystackSecondOpinion()">Pay ₦20,000 &amp; Submit 🔒</button>
   </div>
 </div>
@@ -989,6 +1047,15 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     </div>
 
     <button class="btn-submit" onclick="submitShopOrder()" style="margin-top:18px">Place Enquiry →</button>
+    <div style="margin-top:16px;padding:16px;background:var(--lb);border-radius:12px;border:1px solid var(--border);text-align:center">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:10px">💡 Already received a price quote from our team?</p>
+      <a href="#" onclick="closeModal('shop');openModal('orderpay');return false"
+        style="display:inline-block;background:var(--teal);color:#fff;padding:10px 24px;border-radius:50px;font-size:.87rem;font-weight:700;text-decoration:none;transition:all .2s"
+        onmouseover="this.style.background='var(--navy)'"
+        onmouseout="this.style.background='var(--teal)'">
+        💳 Pay for My Order
+      </a>
+    </div>
   </div>
 </div>
 
@@ -1070,13 +1137,13 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
 
 <script>
 // ── PAGE ROUTING ──
-const pages = ['home','about','blog'];
+var pages = ['home','about','blog'];
 function showPage(name) {
   pages.forEach(p => {
-    const el = document.getElementById('page-'+p) || document.getElementById(p);
+    var el = document.getElementById('page-'+p) || document.getElementById(p);
     if(el) el.style.display = 'none';
   });
-  const target = document.getElementById('page-'+name) || document.getElementById(name);
+  var target = document.getElementById('page-'+name) || document.getElementById(name);
   if(target) { target.style.display = 'block'; window.scrollTo({top:0,behavior:'smooth'}); }
   document.getElementById('navLinks').classList.remove('open');
 }
@@ -1094,7 +1161,7 @@ document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('cli
 
 // ── TOAST ──
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg; t.style.display='block';
   setTimeout(()=>{ t.style.display='none'; }, 4000);
 }
@@ -1113,47 +1180,47 @@ function submitForm(type) {
 }
 
 // ── BACK TO TOP ──
-const btt = document.getElementById('btt');
+var btt = document.getElementById('btt');
 window.addEventListener('scroll', ()=>{
   btt.classList.toggle('show', window.scrollY > 400);
 });
 
 // ── SCROLL REVEAL ──
-const observer = new IntersectionObserver(entries => {
+var observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
 }, {threshold:0.12});
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // ── COUNTER ANIMATION ──
 function animateCounter(el) {
-  const target = parseInt(el.getAttribute('data-count'));
-  let count = 0;
-  const step = Math.ceil(target/60);
-  const timer = setInterval(()=>{
+  var target = parseInt(el.getAttribute('data-count'));
+  var count = 0;
+  var step = Math.ceil(target/60);
+  var timer = setInterval(()=>{
     count = Math.min(count+step, target);
     el.textContent = count + (el.parentElement.querySelector('.stat-label').textContent.includes('%') ? '%' : '+');
     if(count>=target) clearInterval(timer);
   }, 30);
 }
-const counterObs = new IntersectionObserver(entries=>{
+var counterObs = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting) animateCounter(e.target); });
 }, {threshold:0.5});
 document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
 
 // ── HERO PARTICLES ──
 (function() {
-  const container = document.getElementById('heroParticles');
+  var container = document.getElementById('heroParticles');
   if(!container) return;
-  for(let i=0;i<18;i++) {
-    const p = document.createElement('div');
+  for(var i=0;i<18;i++) {
+    var p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random()*60+20;
+    var size = Math.random()*60+20;
     p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*15}s;`;
     container.appendChild(p);
   }
-  const notes = document.getElementById('heroNotes');
+  var notes = document.getElementById('heroNotes');
   ['♪','♫','♬','♩','𝄞'].forEach((n,i)=>{
-    const el = document.createElement('div');
+    var el = document.createElement('div');
     el.className='note'; el.textContent=n;
     el.style.cssText=`left:${15+i*18}%;bottom:${20+Math.random()*30}%;animation-delay:${i*1.6}s;font-size:${1.2+Math.random()}rem`;
     notes.appendChild(el);
@@ -1161,30 +1228,30 @@ document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
 })();
 
 // ── CALENDAR ──
-let calDate = new Date();
-let selectedDate = null, selectedTime = null;
-const times = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
-const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var calDate = new Date();
+var selectedDate = null, selectedTime = null;
+var times = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function buildCalendar() {
-  const hdrs = document.getElementById('calDayHeaders');
-  const grid = document.getElementById('calDays');
-  const monthEl = document.getElementById('calMonth');
-  const timeEl = document.getElementById('timeSlots');
+  var hdrs = document.getElementById('calDayHeaders');
+  var grid = document.getElementById('calDays');
+  var monthEl = document.getElementById('calMonth');
+  var timeEl = document.getElementById('timeSlots');
   if(!hdrs||!grid) return;
   hdrs.innerHTML = days.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
   monthEl.textContent = months[calDate.getMonth()]+' '+calDate.getFullYear();
-  const first = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
-  const last = new Date(calDate.getFullYear(), calDate.getMonth()+1, 0);
-  const today = new Date(); today.setHours(0,0,0,0);
-  let html = '';
-  for(let i=0;i<first.getDay();i++) html += '<div></div>';
-  for(let d=1;d<=last.getDate();d++) {
-    const date = new Date(calDate.getFullYear(), calDate.getMonth(), d);
-    const isToday = date.getTime()===today.getTime();
-    const isPast = date < today;
-    const sel = selectedDate && date.toDateString()===selectedDate.toDateString();
+  var first = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+  var last = new Date(calDate.getFullYear(), calDate.getMonth()+1, 0);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var html = '';
+  for(var i=0;i<first.getDay();i++) html += '<div></div>';
+  for(var d=1;d<=last.getDate();d++) {
+    var date = new Date(calDate.getFullYear(), calDate.getMonth(), d);
+    var isToday = date.getTime()===today.getTime();
+    var isPast = date < today;
+    var sel = selectedDate && date.toDateString()===selectedDate.toDateString();
     html += `<div class="cal-day${isPast?' disabled':''}${isToday?' today':''}${sel?' selected':''}" onclick="selectDate(${d})">${d}</div>`;
   }
   grid.innerHTML = html;
@@ -1204,11 +1271,21 @@ function selectTime(t) {
 }
 
 // ── PAYSTACK ──
-const PAYSTACK_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Replace with your real key
+var PAYSTACK_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Replace with your real key
+
+// ── SAVE REGISTRATION TO FIRESTORE ──
+// Delegated to window.saveRegistration defined in Firebase block above
+async function saveRegistration(data) {
+  if(window.saveRegistration) {
+    await window.saveRegistration(data);
+  } else {
+    console.warn('Firebase not ready yet — registration not saved');
+  }
+}
 
 // ── DOCTOR EMAIL ALERT ──
 function sendDoctorAlert(subject, details) {
-  const params = {
+  var params = {
     to_email:    'healthharmonicshub@gmail.com',
     to_name:     'Health Harmonics Team',
     subject:     subject,
@@ -1222,7 +1299,7 @@ function sendDoctorAlert(subject, details) {
 
 function paystackPay(email, amount, meta, onSuccess) {
   if(!email) { showToast('⚠️ Please enter your email address'); return; }
-  const handler = PaystackPop.setup({
+  var handler = PaystackPop.setup({
     key: PAYSTACK_KEY,
     email: email,
     amount: amount * 100,
@@ -1231,8 +1308,21 @@ function paystackPay(email, amount, meta, onSuccess) {
     callback: function(res) {
       closeAllModals();
       showToast('✅ Payment successful! Reference: '+res.reference);
+      // ── Save to Firestore ──
+      saveRegistration({
+        type:      'Payment',
+        service:   meta.service   || 'N/A',
+        name:      meta.name      || email,
+        email:     email,
+        amount:    amount,
+        reference: res.reference,
+        apptDate:  meta.date      || '',
+        apptTime:  meta.time      || '',
+        challenge: meta.challenge || '',
+        status:    'Paid'
+      });
       // ── Notify doctor ──
-      const naira = new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format(amount);
+      var naira = new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format(amount);
       sendDoctorAlert(
         '💳 New Payment Received – ' + (meta.service || 'Health Harmonics'),
         [
@@ -1261,47 +1351,79 @@ function closeAllModals() {
 }
 
 function paystackConsult() {
-  const email = document.getElementById('c-email').value;
-  const name = document.getElementById('c-fname').value + ' ' + document.getElementById('c-lname').value;
-  const type = document.getElementById('c-type').value;
-  const price = type.includes('40,000') ? 40000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
-  paystackPay(email, price, {name, type, date:selectedDate?.toDateString(), time:selectedTime});
+  var email = document.getElementById('c-email').value;
+  var name  = (document.getElementById('c-fname').value + ' ' + document.getElementById('c-lname').value).trim();
+  var type  = document.getElementById('c-type').value;
+  var phone = document.getElementById('c-phone').value;
+  var desc  = document.getElementById('c-desc').value;
+  var price = type.includes('40,000') ? 40000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
+  paystackPay(email, price, {name, type, date:selectedDate?.toDateString(), time:selectedTime}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Medical/Surgical Consultation', type, name, email, phone,
+      description: desc, appointmentDate: selectedDate?.toDateString() || '',
+      appointmentTime: selectedTime || '', amount: price,
+      paymentRef: res.reference, status: 'Paid'
+    });
+  });
 }
 function paystackSecondOpinion() {
-  const email = document.getElementById('so-email').value;
-  const name = document.getElementById('so-fname').value + ' ' + document.getElementById('so-lname').value;
-  paystackPay(email, 20000, {name, service:'Second Opinion'});
+  var email = document.getElementById('so-email').value;
+  var name  = (document.getElementById('so-fname').value + ' ' + document.getElementById('so-lname').value).trim();
+  var phone = document.getElementById('so-phone').value;
+  var story = document.getElementById('so-diag').value;
+  paystackPay(email, 20000, {name, service:'Second Opinion'}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Second Opinion', name, email, phone,
+      description: story, amount: 20000,
+      paymentRef: res.reference, status: 'Paid'
+    });
+  });
 }
 function paystackMusic() {
-  const email = document.getElementById('m-email').value;
-  paystackPay(email, 20000, {service:'Music Education'});
+  var email = document.getElementById('m-email').value;
+  paystackPay(email, 20000, {service:'Music Education'}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Music Education', email, amount: 20000,
+      paymentRef: res.reference, status: 'Paid'
+    });
+  });
 }
 function paystackWellness() {
-  const email = document.getElementById('w-email').value;
-  const name = (document.getElementById('w-fname').value + ' ' + document.getElementById('w-lname').value).trim();
-  paystackPay(email, 30000, {name, service:'Wellness & Lifestyle Medicine Consultation'});
+  var email = document.getElementById('w-email').value;
+  var name  = (document.getElementById('w-fname').value + ' ' + document.getElementById('w-lname').value).trim();
+  paystackPay(email, 30000, {name, service:'Wellness & Lifestyle Medicine Consultation'}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Wellness & Lifestyle Medicine', name, email, amount: 30000,
+      paymentRef: res.reference, status: 'Paid'
+    });
+  });
 }
 function paystackChallenge() {
-  const email = document.getElementById('ch-email').value;
-  const type = document.getElementById('ch-type').value;
-  paystackPay(email, 20000, {service:'Health Challenge', challenge:type});
+  var email = document.getElementById('ch-email').value;
+  var type  = document.getElementById('ch-type').value;
+  paystackPay(email, 20000, {service:'Health Challenge', challenge:type}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Health Challenge', challenge: type, email, amount: 20000,
+      paymentRef: res.reference, status: 'Paid'
+    });
+  });
 }
 
 // ── PRESCRIPTION UPLOAD ──
 function toggleRxUpload(val) {
-  const wrap = document.getElementById('rx-upload-wrap');
+  var wrap = document.getElementById('rx-upload-wrap');
   wrap.style.display = val === 'yes' ? 'block' : 'none';
 }
 
 function rxDragOver(e) {
   e.preventDefault();
-  const dz = document.getElementById('rx-dropzone');
+  var dz = document.getElementById('rx-dropzone');
   dz.style.borderColor = 'var(--blue)';
   dz.style.background = 'var(--lb)';
 }
 
 function rxDragLeave(e) {
-  const dz = document.getElementById('rx-dropzone');
+  var dz = document.getElementById('rx-dropzone');
   dz.style.borderColor = 'var(--border)';
   dz.style.background = 'var(--off)';
 }
@@ -1309,22 +1431,22 @@ function rxDragLeave(e) {
 function rxDrop(e) {
   e.preventDefault();
   rxDragLeave(e);
-  const file = e.dataTransfer.files[0];
+  var file = e.dataTransfer.files[0];
   if(file) rxProcessFile(file);
 }
 
 function rxFileSelected(input) {
-  const file = input.files[0];
+  var file = input.files[0];
   if(file) rxProcessFile(file);
 }
 
 function rxProcessFile(file) {
-  const maxSize = 10 * 1024 * 1024;
+  var maxSize = 10 * 1024 * 1024;
   if(file.size > maxSize) { showToast('⚠️ File too large. Please keep it under 10MB.'); return; }
-  const allowed = ['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
+  var allowed = ['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
   if(!allowed.includes(file.type)) { showToast('⚠️ Please upload a JPG, PNG, or PDF file.'); return; }
 
-  const dz = document.getElementById('rx-dropzone');
+  var dz = document.getElementById('rx-dropzone');
   dz.style.borderColor = 'var(--teal)';
   dz.style.borderStyle = 'solid';
   dz.style.background = '#edfaf7';
@@ -1335,7 +1457,7 @@ function rxProcessFile(file) {
   document.getElementById('rx-file-size').textContent = (file.size/1024).toFixed(1) + ' KB';
 
   if(file.type !== 'application/pdf') {
-    const reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = e => {
       document.getElementById('rx-img-preview').src = e.target.result;
       document.getElementById('rx-img-preview').style.display = 'block';
@@ -1350,7 +1472,7 @@ function rxProcessFile(file) {
 
 function rxClear(e) {
   e.stopPropagation();
-  const dz = document.getElementById('rx-dropzone');
+  var dz = document.getElementById('rx-dropzone');
   dz.style.borderColor = 'var(--border)';
   dz.style.borderStyle = 'dashed';
   dz.style.background = 'var(--off)';
@@ -1362,14 +1484,26 @@ function rxClear(e) {
 }
 
 function submitShopOrder() {
-  const hasPx = document.getElementById('sh-rx').value === 'yes';
+  var hasPx = document.getElementById('sh-rx').value === 'yes';
   if(hasPx && !window._rxFile) {
     showToast('⚠️ Please upload your prescription before submitting.');
     return;
   }
-  const shopEmail = document.getElementById('sh-email').value || 'Not provided';
+  var shopEmail = document.getElementById('sh-email').value || 'Not provided';
+  var shopFname = document.querySelector('#modal-shop input[placeholder="First name"]')?.value || '';
+  var shopLname = document.querySelector('#modal-shop input[placeholder="Last name"]')?.value || '';
+  var shopName  = (shopFname + ' ' + shopLname).trim() || 'Unknown';
   closeAllModals();
   showToast('✅ Order enquiry received! Our team will contact you shortly.');
+  saveRegistration({
+    type:         'Shop Enquiry',
+    service:      'Medical Shop Order',
+    name:         shopName,
+    email:        shopEmail,
+    amount:       0,
+    prescription: hasPx ? (window._rxFile ? window._rxFile.name : 'Yes - uploaded') : 'No',
+    status:       'Pending Quote'
+  });
   sendDoctorAlert(
     '🛒 New Medical Shop Order Enquiry',
     [
@@ -1386,15 +1520,23 @@ function submitShopOrder() {
 // ── NEWSLETTER (Mailchimp) ──
 function subscribeNewsletter(e) {
   e.preventDefault();
-  const name = document.getElementById('nlName').value;
-  const email = document.getElementById('nlEmail').value;
+  var name = document.getElementById('nlName').value;
+  var email = document.getElementById('nlEmail').value;
   // Replace with your Mailchimp endpoint
-  const MC_URL = 'https://YOUR_MAILCHIMP_ENDPOINT.us21.list-manage.com/subscribe/post?u=XXXXXX&id=XXXXXX';
-  const form = new FormData();
+  var MC_URL = 'https://YOUR_MAILCHIMP_ENDPOINT.us21.list-manage.com/subscribe/post?u=XXXXXX&id=XXXXXX';
+  var form = new FormData();
   form.append('EMAIL', email); form.append('FNAME', name);
   fetch(MC_URL+'&EMAIL='+encodeURIComponent(email)+'&FNAME='+encodeURIComponent(name)+'&f_id=xxx&c=?', {mode:'no-cors'})
     .catch(()=>{});
   showToast('✅ '+name+', you\'re subscribed! Check your inbox soon.');
+  saveRegistration({
+    type:    'Newsletter',
+    service: 'Newsletter Subscription',
+    name:    name,
+    email:   email,
+    amount:  0,
+    status:  'Subscribed'
+  });
   sendDoctorAlert(
     '📧 New Newsletter Subscriber',
     [
@@ -1408,7 +1550,7 @@ function subscribeNewsletter(e) {
 }
 
 // ── TRIVIA ──
-const triviaData = [
+var triviaData = [
   {q:"What is the largest organ in the human body?",opts:["Liver","Brain","Skin","Lungs"],correct:2,fact:"The skin is the body\'s largest organ, covering about 2 square meters in adults!"},
   {q:"How many bones are in the adult human body?",opts:["186","206","226","246"],correct:1,fact:"Adults have 206 bones. Babies are born with about 270, which fuse as they grow!"},
   {q:"Which blood type is known as the universal donor?",opts:["Type A","Type B","Type AB","Type O-"],correct:3,fact:"O-negative blood can be given to anyone, making it critical for emergencies!"},
@@ -1420,11 +1562,11 @@ const triviaData = [
   {q:"How much blood does the adult human body contain?",opts:["2–3 litres","4–6 litres","7–9 litres","10–12 litres"],correct:1,fact:"The average adult has 4–6 litres of blood, which the heart pumps around the body constantly."},
   {q:"Which vitamin is produced when the skin is exposed to sunlight?",opts:["Vitamin A","Vitamin B12","Vitamin C","Vitamin D"],correct:3,fact:"Sunlight triggers Vitamin D production in the skin — essential for bone health and immunity!"}
 ];
-let tIdx=0, tScore=0, tAnswered=false;
+var tIdx=0, tScore=0, tAnswered=false;
 
 function loadTrivia() {
   if(tIdx >= triviaData.length) { showTriviaScore(); return; }
-  const q = triviaData[tIdx];
+  var q = triviaData[tIdx];
   document.getElementById('triviaCounter').textContent = `Question ${tIdx+1} of ${triviaData.length}`;
   document.getElementById('triviaQuestion').textContent = q.q;
   document.getElementById('triviaProgress').style.width = (tIdx/triviaData.length*100)+'%';
@@ -1432,17 +1574,17 @@ function loadTrivia() {
   document.getElementById('triviaFeedback').textContent = '';
   document.getElementById('triviaNext').className = 'trivia-next';
   tAnswered = false;
-  const opts = document.getElementById('triviaOptions');
+  var opts = document.getElementById('triviaOptions');
   opts.innerHTML = q.opts.map((o,i)=>`<button class="trivia-opt" onclick="answerTrivia(${i})">${o}</button>`).join('');
 }
 
 function answerTrivia(idx) {
   if(tAnswered) return;
   tAnswered = true;
-  const q = triviaData[tIdx];
-  const opts = document.querySelectorAll('.trivia-opt');
+  var q = triviaData[tIdx];
+  var opts = document.querySelectorAll('.trivia-opt');
   opts.forEach(o => o.disabled = true);
-  const fb = document.getElementById('triviaFeedback');
+  var fb = document.getElementById('triviaFeedback');
   if(idx === q.correct) {
     opts[idx].classList.add('correct');
     tScore++;
@@ -1463,9 +1605,9 @@ function showTriviaScore() {
   document.getElementById('triviaBody').style.display='none';
   document.getElementById('triviaScore').className='trivia-score-panel show';
   document.getElementById('scoreBig').textContent = tScore;
-  const pct = tScore/triviaData.length;
-  const titles = [['Keep Learning!','Every expert was once a beginner. Try again!'],['Good Effort!','You\'re building great health knowledge!'],['Great Job!','Your health knowledge is impressive!'],['Amazing!','You\'re a medical trivia champion! 🏆']];
-  const [title,msg] = pct<0.4?titles[0]:pct<0.6?titles[1]:pct<0.8?titles[2]:titles[3];
+  var pct = tScore/triviaData.length;
+  var titles = [['Keep Learning!','Every expert was once a beginner. Try again!'],['Good Effort!','You\'re building great health knowledge!'],['Great Job!','Your health knowledge is impressive!'],['Amazing!','You\'re a medical trivia champion! 🏆']];
+  var [title,msg] = pct<0.4?titles[0]:pct<0.6?titles[1]:pct<0.8?titles[2]:titles[3];
   document.getElementById('scoreTitle').textContent = title;
   document.getElementById('scoreMsg').textContent = msg;
   document.getElementById('triviaProgress').style.width='100%';
@@ -1480,6 +1622,753 @@ function resetTrivia() {
 
 loadTrivia();
 buildCalendar();
+
+// ── ORDER PAYMENT PORTAL ──
+function opFormatAmount() {
+  var amt = parseFloat(document.getElementById('op-amount').value);
+  var name = (document.getElementById('op-fname').value + ' ' + document.getElementById('op-lname').value).trim();
+  var desc = document.getElementById('op-ref').value;
+  var display = document.getElementById('op-amount-display');
+  var summary = document.getElementById('op-summary');
+  var sumName = document.getElementById('op-summary-name');
+  var sumDesc = document.getElementById('op-summary-desc');
+  var sumAmt  = document.getElementById('op-summary-amount');
+
+  if(amt && amt >= 100) {
+    var formatted = new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN'}).format(amt);
+    display.innerHTML = '<span style="color:var(--teal);font-weight:600">You will be charged: ' + formatted + '</span>';
+    summary.style.display = 'block';
+    sumName.textContent = name || 'Patient';
+    sumDesc.textContent = desc || 'Medical supplies order';
+    sumAmt.textContent  = formatted;
+  } else {
+    display.textContent = '';
+    summary.style.display = 'none';
+  }
+}
+
+function processOrderPayment() {
+  var email  = document.getElementById('op-email').value;
+  var fname  = document.getElementById('op-fname').value;
+  var lname  = document.getElementById('op-lname').value;
+  var phone  = document.getElementById('op-phone').value;
+  var amount = parseFloat(document.getElementById('op-amount').value);
+  var ref    = document.getElementById('op-ref').value;
+
+  if(!fname || !lname) { showToast('⚠️ Please enter your full name.'); return; }
+  if(!email)           { showToast('⚠️ Please enter your email address.'); return; }
+  if(!amount || amount < 100) { showToast('⚠️ Please enter a valid amount (minimum ₦100).'); return; }
+
+  var name = fname + ' ' + lname;
+  paystackPay(email, amount, {
+    name:    name,
+    phone:   phone,
+    service: 'Medical Supplies Order',
+    type:    ref || 'Medical supplies payment',
+  }, function(res) {
+    sendDoctorAlert(
+      '💊 Medical Order Payment Received – ' + name,
+      [
+        'SERVICE: Medical Supplies Order Payment',
+        'PATIENT: '   + name,
+        'EMAIL: '     + email,
+        'PHONE: '     + (phone || 'Not provided'),
+        'ORDER: '     + (ref || 'Not specified'),
+        'AMOUNT: '    + new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format(amount),
+        'REFERENCE: ' + res.reference,
+        'DATE: '      + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+        'NOTE: Patient has completed payment. Please process and dispatch order.',
+      ].join('\n')
+    );
+  });
+}
+
 </script>
+
+<!-- Order Payment Modal -->
+<div class="modal-overlay" id="modal-orderpay">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('orderpay')">×</button>
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:2.5rem;margin-bottom:8px">💊</div>
+      <h3 style="font-size:1.4rem">Pay for Your Medical Order</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:6px;line-height:1.6">
+        Our team has reviewed your order and sent you the exact amount to pay. Enter your details below to complete your payment securely.
+      </p>
+    </div>
+
+    <div style="background:var(--lb);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--navy)">
+        <span style="font-size:1.2rem">ℹ️</span>
+        <span>Only proceed if you have <strong>received a price quote</strong> from our team via email or WhatsApp. If not, please submit your order first.</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input type="text" id="op-fname" placeholder="First name"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="op-lname" placeholder="Last name"></div>
+    </div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="op-email" placeholder="your@email.com" oninput="opFormatAmount()"></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="op-phone" placeholder="+234 800 000 0000"></div>
+
+    <div class="form-group">
+      <label>Order Reference / Description <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <input type="text" id="op-ref" placeholder="e.g. Paracetamol x2, Blood pressure monitor">
+    </div>
+
+    <div class="form-group">
+      <label>Amount to Pay (₦) <span style="color:#dc3545;font-weight:700">*</span></label>
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--navy);font-size:1rem">₦</span>
+        <input type="number" id="op-amount" placeholder="Enter amount quoted by our team"
+          min="100" step="100"
+          style="padding-left:28px!important"
+          oninput="opFormatAmount()"
+          onkeydown="if(event.key==='-'||event.key==='e')event.preventDefault()">
+      </div>
+      <div id="op-amount-display" style="margin-top:6px;font-size:.82rem;color:var(--muted)"></div>
+    </div>
+
+    <div id="op-summary" style="display:none;background:linear-gradient(135deg,var(--navy),#0d3562);color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="font-size:.78rem;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Payment Summary</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:.88rem;opacity:.8" id="op-summary-name">—</div>
+          <div style="font-size:.78rem;opacity:.6" id="op-summary-desc">—</div>
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#f0c060" id="op-summary-amount">—</div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="op-pay-btn" onclick="processOrderPayment()"
+      style="background:linear-gradient(135deg,var(--teal),var(--blue));font-size:1rem;padding:16px">
+      🔒 Pay Securely via Paystack
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:10px">
+      🔒 Secured by Paystack &bull; Your payment is safe and encrypted
+    </p>
+  </div>
+</div>
+
+
+<!-- ══ MEDICAL INVOICE PAYMENT MODAL (triggered via email link) ══ -->
+<div class="modal-overlay" id="modal-invoice">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('invoice')">×</button>
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:2.5rem;margin-bottom:8px">💊</div>
+      <h3 style="font-size:1.4rem">Medical Supplies Payment</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-top:6px">Health Harmonics Ltd. — Secure Payment Portal</p>
+    </div>
+    <div id="invoice-details" style="background:var(--off);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:.82rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Invoice For</span>
+        <span style="font-size:.82rem;color:var(--muted)" id="inv-date"></span>
+      </div>
+      <div style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:6px" id="inv-item">—</div>
+      <div style="font-size:.88rem;color:var(--muted);margin-bottom:16px" id="inv-note"></div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.88rem;font-weight:600;color:var(--navy)">Total Amount Due</span>
+        <span style="font-size:1.5rem;font-weight:700;color:var(--blue);font-family:'Playfair Display',serif" id="inv-amount">₦0</span>
+      </div>
+    </div>
+    <div class="form-group"><label>Your Email Address</label><input type="email" id="inv-email" placeholder="Confirm your email to proceed"></div>
+    <button class="btn-submit" onclick="payInvoice()" style="margin-top:8px">
+      🔒 Pay Securely with Paystack
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:12px">🔒 Secured by Paystack · Your data is safe</p>
+  </div>
+</div>
+
+<!-- ══ ADMIN PORTAL PAGE ══ -->
+<div id="page-admin" style="display:none;min-height:100vh;background:var(--off);padding-top:74px">
+
+  <!-- Login Screen -->
+  <div id="admin-login" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 74px);padding:24px">
+    <div style="background:#fff;border-radius:24px;padding:48px 40px;max-width:400px;width:100%;box-shadow:0 24px 64px rgba(10,37,64,.12);border:1px solid var(--border)">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:2.5rem;margin-bottom:12px">🔐</div>
+        <h2 style="font-size:1.5rem;color:var(--navy);margin-bottom:6px">Doctor Admin Portal</h2>
+        <p style="color:var(--muted);font-size:.88rem">Health Harmonics Ltd. — Staff Access Only</p>
+      </div>
+      <div class="form-group"><label>Password</label>
+        <input type="password" id="admin-pw" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="btn-submit" onclick="adminLogin()" style="margin-top:8px">Login →</button>
+      <p style="text-align:center;margin-top:16px;font-size:.8rem;color:var(--muted)">
+        <a href="#" onclick="showPage('home');return false" style="color:var(--blue)">← Back to website</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dashboard" style="display:none;padding:40px 6%;max-width:900px;margin:0 auto">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;flex-wrap:wrap;gap:16px">
+      <div>
+        <h2 style="color:var(--navy);font-size:1.6rem;margin-bottom:4px">Admin Dashboard</h2>
+        <p style="color:var(--muted);font-size:.88rem">Send payment requests to patients</p>
+      </div>
+      <button onclick="adminLogout()" style="background:none;border:1px solid var(--border);border-radius:50px;padding:8px 20px;color:var(--muted);cursor:pointer;font-size:.85rem;transition:all .2s" onmouseover="this.style.borderColor='#dc3545';this.style.color='#dc3545'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Logout →</button>
+    </div>
+
+    <!-- Send Invoice Card -->
+    <div style="background:#fff;border-radius:20px;padding:36px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(10,37,64,.07);margin-bottom:28px">
+      <h3 style="color:var(--navy);font-size:1.15rem;margin-bottom:6px">💊 Send Payment Request to Patient</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:24px">Fill in the patient details and the amount. They will receive an email with a secure payment link.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group"><label>Patient Full Name</label><input type="text" id="adm-name" placeholder="e.g. Adaeze Johnson"></div>
+        <div class="form-group"><label>Patient Email</label><input type="email" id="adm-email" placeholder="patient@email.com"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group"><label>Item / Medication Description</label><input type="text" id="adm-item" placeholder="e.g. Amoxicillin 500mg x30, BP Monitor"></div>
+        <div class="form-group"><label>Amount to Charge (₦)</label><input type="number" id="adm-amount" placeholder="e.g. 15000" min="100"></div>
+      </div>
+      <div class="form-group"><label>Additional Note for Patient (optional)</label><textarea id="adm-note" placeholder="e.g. Please complete payment within 48 hours for same-day dispatch..." style="min-height:70px"></textarea></div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn-primary" onclick="sendInvoiceEmail()" style="flex:1;min-width:200px">
+          📧 Send Payment Link to Patient
+        </button>
+        <button onclick="previewInvoice()" style="flex:1;min-width:160px;background:var(--off);border:1px solid var(--border);border-radius:50px;padding:14px;font-size:.92rem;font-weight:600;cursor:pointer;color:var(--navy);transition:all .2s" onmouseover="this.style.background='var(--lb)'" onmouseout="this.style.background='var(--off)'">
+          👁 Preview Invoice
+        </button>
+      </div>
+      <div id="adm-feedback" style="display:none;margin-top:16px;padding:14px 18px;border-radius:10px;font-size:.88rem;font-weight:500"></div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px" id="adm-stats">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(10,37,64,.05)">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--navy);font-family:'Playfair Display',serif" id="stat-total">—</div>
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Registrations</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(10,37,64,.05)">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--blue);font-family:'Playfair Display',serif" id="stat-paid">—</div>
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Paid</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(10,37,64,.05)">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--teal);font-family:'Playfair Display',serif" id="stat-revenue">—</div>
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Revenue</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(10,37,64,.05)">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif" id="stat-pending">—</div>
+        <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Pending</div>
+      </div>
+    </div>
+
+    <!-- Filter + Search -->
+    <div style="background:#fff;border-radius:20px;padding:28px 32px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(10,37,64,.07);margin-bottom:28px">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <h3 style="color:var(--navy);font-size:1.15rem;margin:0">👥 All Registered Users</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="loadRegistrations()" style="background:var(--blue);color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s">🔄 Refresh</button>
+          <button onclick="exportCSV()" style="background:var(--off);border:1px solid var(--border);border-radius:50px;padding:8px 18px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--navy);transition:all .2s">📥 Export CSV</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <input type="text" id="adm-search" placeholder="🔍 Search by name or email..." oninput="filterTable()" style="flex:1;min-width:200px;padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;outline:none;font-family:'DM Sans',sans-serif">
+        <select id="adm-filter" onchange="filterTable()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;outline:none;font-family:'DM Sans',sans-serif;background:#fff">
+          <option value="">All Services</option>
+          <option value="Payment">Payments Only</option>
+          <option value="Shop Enquiry">Shop Enquiries</option>
+          <option value="Newsletter">Newsletter</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="adm-table" style="width:100%;border-collapse:collapse;font-size:.85rem">
+          <thead>
+            <tr style="background:var(--off);border-radius:8px">
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;white-space:nowrap">Date</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700">Name</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700">Email</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700">Service</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700">Amount</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700">Status</th>
+            </tr>
+          </thead>
+          <tbody id="adm-table-body">
+            <tr><td colspan="6" style="padding:32px;text-align:center;color:var(--muted);font-style:italic">Loading registrations...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:var(--muted);font-size:.78rem;margin-top:14px" id="adm-count"></p>
+    </div>
+
+    <!-- Invoice Log -->
+    <div style="background:#fff;border-radius:20px;padding:36px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(10,37,64,.07)">
+      <h3 style="color:var(--navy);font-size:1.15rem;margin-bottom:6px">📤 Payment Links Sent This Session</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:20px">Invoice links sent to patients during this login session.</p>
+      <div id="adm-log">
+        <p style="color:var(--muted);font-size:.88rem;font-style:italic">No invoices sent yet this session.</p>
+      </div>
+    </div>
+
+    <!-- ── ALL REGISTRATIONS TABLE ── -->
+    <div style="background:#fff;border-radius:20px;padding:36px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(10,37,64,.07);margin-top:28px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <div>
+          <h3 style="color:var(--navy);font-size:1.15rem;margin-bottom:4px">👥 All Patient Registrations</h3>
+          <p style="color:var(--muted);font-size:.85rem">Every booking, payment and enquiry submitted on the site — stored in real-time.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <select id="reg-filter" onchange="filterRegistrations()" style="padding:8px 14px;border:1px solid var(--border);border-radius:20px;font-size:.83rem;color:var(--navy);background:#fff;cursor:pointer;outline:none">
+            <option value="">All Services</option>
+            <option value="Medical">Medical Consultation</option>
+            <option value="Second Opinion">Second Opinion</option>
+            <option value="Wellness">Wellness</option>
+            <option value="Music">Music Education</option>
+            <option value="Health Challenge">Health Challenge</option>
+            <option value="Shop">Medical Shop</option>
+            <option value="Invoice">Invoice Payment</option>
+          </select>
+          <button onclick="loadAndRenderRegistrations()" style="background:var(--blue);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:.83rem;cursor:pointer;font-weight:600;transition:all .2s" onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--blue)'">🔄 Refresh</button>
+          <button onclick="exportCSV()" style="background:var(--off);border:1px solid var(--border);border-radius:20px;padding:8px 18px;font-size:.83rem;cursor:pointer;font-weight:600;color:var(--navy);transition:all .2s" onmouseover="this.style.background='var(--lb)'" onmouseout="this.style.background='var(--off)'">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div id="reg-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px"></div>
+
+      <!-- Table -->
+      <div style="overflow-x:auto">
+        <table id="reg-table" style="width:100%;border-collapse:collapse;font-size:.84rem">
+          <thead>
+            <tr style="background:var(--off);border-radius:10px">
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">#</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Patient</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Service</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Details</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Amount</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Status</th>
+              <th style="padding:12px 14px;text-align:left;color:var(--navy);font-weight:700;font-family:'DM Sans',sans-serif;border-bottom:2px solid var(--border)">Date</th>
+            </tr>
+          </thead>
+          <tbody id="reg-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);font-style:italic">Loading registrations...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="reg-empty" style="display:none;text-align:center;padding:48px 20px">
+        <div style="font-size:2.5rem;margin-bottom:12px">📭</div>
+        <p style="color:var(--muted)">No registrations found yet. They will appear here as patients book and pay.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── ADMIN AUTH ──
+var ADMIN_PASSWORD = 'HealthHarmonics2025!'; // Change this to your preferred password
+
+function adminLogin() {
+  var pw = document.getElementById('admin-pw').value;
+  if(pw === ADMIN_PASSWORD) {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    document.getElementById('admin-pw').value = '';
+    loadRegistrations();
+    setTimeout(loadAndRenderRegistrations, 500);
+  } else {
+    showToast('❌ Incorrect password. Please try again.');
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+}
+
+function adminLogout() {
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('admin-dashboard').style.display = 'none';
+  showPage('home');
+}
+
+// ── LOAD ALL REGISTRATIONS FROM FIRESTORE ──
+window._allRegistrations = [];
+
+async function loadRegistrations() {
+  var tbody = document.getElementById('adm-table-body');
+  tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--muted)">⏳ Loading...</td></tr>';
+  try {
+    if(!window._firebaseReady || !window.loadAllRegistrations) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">⚠️ Firebase not ready. Please refresh the page.</td></tr>';
+      return;
+    }
+    window._allRegistrations = await window.loadAllRegistrations();
+    renderTable(window._allRegistrations);
+    updateStats(window._allRegistrations);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">❌ Error: ' + e.message + '</td></tr>';
+    console.error(e);
+  }
+}
+
+function renderTable(rows) {
+  var tbody = document.getElementById('adm-table-body');
+  var countEl = document.getElementById('adm-count');
+  if(!rows.length) {
+    tbody.innerHTML = '<tr><td colspan=6 style="padding:32px;text-align:center;color:#5a7080;font-style:italic">No registrations found yet.</td></tr>';
+    if(countEl) countEl.textContent = '';
+    return;
+  }
+  if(countEl) countEl.textContent = 'Showing ' + rows.length + ' record' + (rows.length !== 1 ? 's' : '');
+  var out = '';
+  for(var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var date = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}) : '-';
+    var time = r.createdAt ? new Date(r.createdAt).toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'}) : '';
+    var naira = r.amount > 0 ? new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN'}).format(r.amount) : '-';
+    var sColor = r.status === 'Paid' ? '#28a745' : r.status === 'Subscribed' ? '#1b7c8a' : '#c9952a';
+    var sBg = r.status === 'Paid' ? '#d4edda' : r.status === 'Subscribed' ? '#e8f3fb' : '#fff3cd';
+    var svc = r.service || r.type || '-';
+    var appt = r.apptDate ? ('<br><small style="color:#5a7080">' + r.apptDate + ' ' + (r.apptTime||'') + '</small>') : '';
+    var rx = (r.prescription && r.prescription !== 'No') ? '<br><small style="color:#1b7c8a">Prescription attached</small>' : '';
+    out += '<tr style="border-bottom:1px solid #d0e4f0">';
+    out += '<td style="padding:12px 14px;color:#5a7080;font-size:.8rem;white-space:nowrap">' + date + '<br><small>' + time + '</small></td>';
+    out += '<td style="padding:12px 14px;font-weight:600;color:#0a2540">' + (r.name||'-') + '</td>';
+    out += '<td style="padding:12px 14px;color:#5a7080">' + (r.email||'-') + '</td>';
+    out += '<td style="padding:12px 14px;color:#1a2a3a">' + svc + appt + rx + '</td>';
+    out += '<td style="padding:12px 14px;font-weight:700;color:#1a6faf">' + naira + '</td>';
+    out += '<td style="padding:12px 14px"><span style="background:' + sBg + ';color:' + sColor + ';padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:700">' + (r.status||'Unknown') + '</span></td>';
+    out += '</tr>';
+  }
+  tbody.innerHTML = out;
+}
+
+function updateStats(rows) {
+  var total   = rows.length;
+  var paid    = rows.filter(r => r.status === 'Paid').length;
+  var pending = rows.filter(r => r.status !== 'Paid' && r.status !== 'Subscribed').length;
+  var revenue = rows.filter(r => r.amount > 0).reduce((s, r) => s + (r.amount || 0), 0);
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-paid').textContent    = paid;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-revenue').textContent =
+    new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(revenue);
+}
+
+function filterTable() {
+  var search = (document.getElementById('adm-search').value || '').toLowerCase();
+  var filter = document.getElementById('adm-filter').value;
+  var filtered = window._allRegistrations.filter(r => {
+    var matchSearch = !search ||
+      (r.name  || '').toLowerCase().includes(search) ||
+      (r.email || '').toLowerCase().includes(search) ||
+      (r.service || '').toLowerCase().includes(search);
+    var matchFilter = !filter || (r.type || '').includes(filter);
+    return matchSearch && matchFilter;
+  });
+  renderTable(filtered);
+}
+
+function exportCSV() {
+  var rows = window._allRegistrations;
+  if(!rows.length) { showToast('⚠️ No data to export.'); return; }
+  var headers = ['Date','Name','Email','Service','Amount (NGN)','Status','Appointment Date','Appointment Time','Prescription'];
+  var csv = [
+    headers.join(','),
+    ...rows.map(r => [
+      r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-NG') : '',
+      '"' + (r.name    || '') + '"',
+      '"' + (r.email   || '') + '"',
+      '"' + (r.service || '') + '"',
+      r.amount || 0,
+      '"' + (r.status  || '') + '"',
+      '"' + (r.apptDate || '') + '"',
+      '"' + (r.apptTime || '') + '"',
+      '"' + (r.prescription || '') + '"',
+    ].join(','))
+  ].join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'health-harmonics-registrations-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ CSV exported successfully!');
+}
+
+// ── BUILD PAYMENT LINK ──
+function buildPayLink(email, amount, item, note, name) {
+  var base = window.location.href.split('?')[0].split('#')[0];
+  var params = new URLSearchParams({
+    pay: '1',
+    email: encodeURIComponent(email),
+    amount: amount,
+    item: encodeURIComponent(item),
+    note: encodeURIComponent(note || ''),
+    name: encodeURIComponent(name || '')
+  });
+  return base + '?' + params.toString();
+}
+
+// ── SEND INVOICE EMAIL TO PATIENT ──
+function sendInvoiceEmail() {
+  var name   = document.getElementById('adm-name').value.trim();
+  var email  = document.getElementById('adm-email').value.trim();
+  var item   = document.getElementById('adm-item').value.trim();
+  var amount = document.getElementById('adm-amount').value.trim();
+  var note   = document.getElementById('adm-note').value.trim();
+  var fb     = document.getElementById('adm-feedback');
+
+  if(!name || !email || !item || !amount) {
+    fb.style.display = 'block';
+    fb.style.background = '#f8d7da'; fb.style.color = '#721c24'; fb.style.border = '1px solid #dc3545';
+    fb.textContent = '⚠️ Please fill in all required fields (name, email, item, amount).';
+    return;
+  }
+
+  var payLink = buildPayLink(email, amount, item, note, name);
+  var naira = new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN'}).format(Number(amount));
+
+  // Email to patient
+  var patientParams = {
+    to_email:  email,
+    to_name:   name,
+    subject:   '💊 Your Medical Supplies Invoice – Health Harmonics Ltd.',
+    message:   [
+      'Dear ' + name + ',',
+      '',
+      'Thank you for your order enquiry with Health Harmonics Ltd.',
+      '',
+      'Your order has been reviewed and is ready for payment.',
+      '',
+      'ITEM(S): '   + item,
+      'AMOUNT DUE: ' + naira,
+      (note ? 'NOTE: ' + note : ''),
+      '',
+      'To complete your payment securely, please click the link below:',
+      '',
+      payLink,
+      '',
+      'This link will take you directly to our secure payment page.',
+      '',
+      'If you have any questions, reply to this email or WhatsApp us on +234 808 162 0395.',
+      '',
+      'Warm regards,',
+      'Health Harmonics Ltd.',
+      'healthharmonicshub@gmail.com',
+    ].filter(v => v !== undefined).join('\n'),
+    reply_to: 'healthharmonicshub@gmail.com'
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, patientParams)
+    .then(() => {
+      fb.style.display = 'block';
+      fb.style.background = '#d4edda'; fb.style.color = '#155724'; fb.style.border = '1px solid #28a745';
+      fb.textContent = '✅ Payment link sent successfully to ' + email + '!';
+
+      // Log it
+      logInvoice(name, email, item, naira, payLink);
+
+      // Also alert doctor
+      sendDoctorAlert('📤 Invoice Sent – ' + name, [
+        'PATIENT: ' + name,
+        'EMAIL: '   + email,
+        'ITEM: '    + item,
+        'AMOUNT: '  + naira,
+        'LINK: '    + payLink,
+        'DATE: '    + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      ].join('\n'));
+
+      // Clear form
+      ['adm-name','adm-email','adm-item','adm-amount','adm-note'].forEach(id => document.getElementById(id).value = '');
+    })
+    .catch(err => {
+      fb.style.display = 'block';
+      fb.style.background = '#f8d7da'; fb.style.color = '#721c24'; fb.style.border = '1px solid #dc3545';
+      fb.textContent = '❌ Failed to send email. Please check your EmailJS setup. Error: ' + err.text;
+    });
+}
+
+// ── LOG INVOICE ──
+function logInvoice(name, email, item, amount, link) {
+  var log = document.getElementById('adm-log');
+  var existing = log.querySelector('p[style*="italic"]');
+  if(existing) existing.remove();
+  var entry = document.createElement('div');
+  entry.style.cssText = 'border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;background:var(--off)';
+  entry.innerHTML = [
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">',
+    '<div>',
+    '<div style="font-weight:700;color:var(--navy);font-size:.92rem">' + name + ' &lt;' + email + '&gt;</div>',
+    '<div style="color:var(--muted);font-size:.83rem;margin-top:3px">' + item + '</div>',
+    '</div>',
+    '<div style="font-weight:700;color:var(--blue);font-size:1rem">' + amount + '</div>',
+    '</div>',
+    '<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">',
+    '<a href="' + link + '" target="_blank" style="font-size:.78rem;color:var(--blue);text-decoration:none;border:1px solid var(--border);padding:4px 12px;border-radius:20px;background:#fff">🔗 View Payment Link</a>',
+    '<span style="font-size:.78rem;color:var(--muted);padding:4px 0">' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}) + '</span>',
+    '</div>'
+  ].join('');
+  log.prepend(entry);
+}
+
+// ── PREVIEW INVOICE ──
+function previewInvoice() {
+  var item   = document.getElementById('adm-item').value.trim();
+  var amount = document.getElementById('adm-amount').value.trim();
+  var note   = document.getElementById('adm-note').value.trim();
+  var email  = document.getElementById('adm-email').value.trim();
+  if(!item || !amount) { showToast('⚠️ Please fill in item and amount to preview.'); return; }
+  var naira = new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN'}).format(Number(amount));
+  openInvoiceModal(email, Number(amount), item, note);
+}
+
+// ── OPEN INVOICE PAYMENT MODAL ──
+function openInvoiceModal(email, amount, item, note) {
+  document.getElementById('inv-item').textContent   = item || 'Medical Supplies';
+  document.getElementById('inv-note').textContent   = note || '';
+  document.getElementById('inv-amount').textContent = new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN'}).format(amount);
+  document.getElementById('inv-date').textContent   = new Date().toLocaleDateString('en-NG');
+  if(email) document.getElementById('inv-email').value = email;
+  document.getElementById('modal-invoice').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  window._invoiceAmount = amount;
+  window._invoiceItem   = item;
+}
+
+// ── PAY INVOICE ──
+function payInvoice() {
+  var email  = document.getElementById('inv-email').value.trim();
+  var amount = window._invoiceAmount;
+  var item   = window._invoiceItem;
+  if(!email) { showToast('⚠️ Please enter your email address.'); return; }
+  paystackPay(email, amount, {service: 'Medical Supplies – ' + item, name: email}, function(res) {
+    if(window.saveRegistration) window.saveRegistration({
+      service: 'Invoice Payment – Medical Supplies', email,
+      description: item, amount, paymentRef: res.reference, status: 'Paid'
+    });
+  });
+}
+
+// ── REGISTRATIONS TABLE ──
+var allRegistrations = [];
+
+async function loadAndRenderRegistrations() {
+  var tbody = document.getElementById('reg-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">⏳ Loading...</td></tr>';
+  if(!window.loadRegistrations) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">⚠️ Firebase not configured yet. Add your Firebase config to enable this feature.</td></tr>';
+    return;
+  }
+  allRegistrations = await window.loadRegistrations();
+  renderStats(allRegistrations);
+  renderTable(allRegistrations);
+}
+
+function renderStats(data) {
+  var statsEl = document.getElementById('reg-stats');
+  if(!statsEl) return;
+  var total    = data.length;
+  var paid     = data.filter(r => r.status === 'Paid').length;
+  var revenue  = data.filter(r => r.amount).reduce((s, r) => s + (r.amount || 0), 0);
+  var enquiries = data.filter(r => r.status && r.status.includes('Enquiry')).length;
+  var fmt = n => new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN', maximumFractionDigits:0}).format(n);
+  var stats = [
+    {label:'Total Registrations', value: total, icon:'👥', color:'var(--blue)'},
+    {label:'Paid Bookings',        value: paid,  icon:'✅', color:'#28a745'},
+    {label:'Total Revenue',        value: fmt(revenue), icon:'💰', color:'var(--gold)'},
+    {label:'Open Enquiries',       value: enquiries, icon:'📋', color:'var(--teal)'},
+  ];
+  statsEl.innerHTML = stats.map(s => `
+    <div style="background:var(--off);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-align:center">
+      <div style="font-size:1.4rem;margin-bottom:4px">${s.icon}</div>
+      <div style="font-size:1.3rem;font-weight:700;color:${s.color};font-family:'Playfair Display',serif">${s.value}</div>
+      <div style="font-size:.74rem;color:var(--muted);margin-top:2px">${s.label}</div>
+    </div>`).join('');
+}
+
+function renderTable(data) {
+  var tbody = document.getElementById('reg-tbody');
+  var empty = document.getElementById('reg-empty');
+  if(!data.length) {
+    tbody.innerHTML = '';
+    if(empty) empty.style.display = 'block';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  var statusBadge = s => {
+    var colors = {
+      'Paid':       'background:#d4edda;color:#155724',
+      'Enquiry':    'background:#fff3cd;color:#856404',
+      'default':    'background:#e2e3e5;color:#383d41'
+    };
+    var style = s && s.includes('Paid') ? colors.Paid : s && s.includes('Enquiry') ? colors.Enquiry : colors.default;
+    return `<span style="${style};padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700">${s || 'N/A'}</span>`;
+  };
+  var fmt = n => n ? new Intl.NumberFormat('en-NG', {style:'currency', currency:'NGN', maximumFractionDigits:0}).format(n) : '—';
+  tbody.innerHTML = data.map((r, i) => `
+    <tr style="border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='var(--off)'" onmouseout="this.style.background='#fff'">
+      <td style="padding:13px 14px;color:var(--muted);font-size:.8rem">${i+1}</td>
+      <td style="padding:13px 14px">
+        <div style="font-weight:600;color:var(--navy)">${r.name || '—'}</div>
+        <div style="font-size:.78rem;color:var(--muted)">${r.email || ''}</div>
+        ${r.phone ? `<div style="font-size:.76rem;color:var(--muted)">${r.phone}</div>` : ''}
+      </td>
+      <td style="padding:13px 14px">
+        <div style="font-weight:600;color:var(--navy);font-size:.85rem">${r.service || '—'}</div>
+        ${r.type ? `<div style="font-size:.77rem;color:var(--muted)">${r.type}</div>` : ''}
+        ${r.challenge ? `<div style="font-size:.77rem;color:var(--muted)">${r.challenge}</div>` : ''}
+      </td>
+      <td style="padding:13px 14px;max-width:220px">
+        ${r.appointmentDate ? `<div style="font-size:.8rem;color:var(--navy)">📅 ${r.appointmentDate} ${r.appointmentTime || ''}</div>` : ''}
+        ${r.description ? `<div style="font-size:.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="${r.description}">${r.description}</div>` : ''}
+        ${r.prescriptionFile && r.prescriptionFile !== 'None' ? `<div style="font-size:.77rem;color:var(--teal)">📎 ${r.prescriptionFile}</div>` : ''}
+        ${r.paymentRef ? `<div style="font-size:.75rem;color:var(--muted);font-family:monospace">Ref: ${r.paymentRef}</div>` : ''}
+      </td>
+      <td style="padding:13px 14px;font-weight:700;color:var(--blue)">${fmt(r.amount)}</td>
+      <td style="padding:13px 14px">${statusBadge(r.status)}</td>
+      <td style="padding:13px 14px;font-size:.78rem;color:var(--muted);white-space:nowrap">${r.date || '—'}</td>
+    </tr>`).join('');
+}
+
+function filterRegistrations() {
+  var filter = document.getElementById('reg-filter').value.toLowerCase();
+  if(!filter) { renderTable(allRegistrations); renderStats(allRegistrations); return; }
+  var filtered = allRegistrations.filter(r => r.service && r.service.toLowerCase().includes(filter));
+  renderTable(filtered);
+  renderStats(filtered);
+}
+
+function exportCSV() {
+  if(!allRegistrations.length) { showToast('⚠️ No registrations to export yet.'); return; }
+  var headers = ['Name','Email','Phone','Service','Type/Challenge','Appointment Date','Appointment Time','Amount (NGN)','Payment Reference','Status','Date'];
+  var rows = allRegistrations.map(r => [
+    r.name||'', r.email||'', r.phone||'', r.service||'',
+    r.type||r.challenge||'', r.appointmentDate||'', r.appointmentTime||'',
+    r.amount||'', r.paymentRef||'', r.status||'', r.date||''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  var csv = [headers.join(','), ...rows].join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'HealthHarmonics_Patients_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ CSV exported successfully!');
+}
+
+// Auto-load registrations when admin logs in
+var _origAdminLogin = window.adminLogin;
+
+// ── HANDLE ?pay= URL PARAMS (patient clicks email link) ──
+(function checkPayURL() {
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('pay') === '1') {
+    var email  = decodeURIComponent(params.get('email')  || '');
+    var amount = Number(params.get('amount') || 0);
+    var item   = decodeURIComponent(params.get('item')   || 'Medical Supplies');
+    var note   = decodeURIComponent(params.get('note')   || '');
+    if(amount > 0) {
+      setTimeout(() => openInvoiceModal(email, amount, item, note), 800);
+    }
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+</script>
+
 </body>
 </html>
