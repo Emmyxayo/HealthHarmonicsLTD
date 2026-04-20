@@ -254,6 +254,62 @@ section{padding:90px 8%}
 .about-why h3{font-size:1.5rem;margin-bottom:16px;color:#fff}
 .about-why p{color:rgba(255,255,255,.82);line-height:1.8;font-size:.98rem}
 
+/* ── YOUTUBE CARDS ── */
+.yt-skeleton {
+  background: linear-gradient(90deg, #e8f3fb 25%, #d0e4f0 50%, #e8f3fb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 16px;
+  min-height: 200px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.yt-thumb-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 24px rgba(10,37,64,.07);
+  transition: all .3s;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+.yt-thumb-card:hover { transform: translateY(-6px); box-shadow: 0 18px 48px rgba(10,37,64,.14); }
+.yt-thumb-wrap {
+  position: relative;
+  aspect-ratio: 16/9;
+  background: #0a2540;
+  overflow: hidden;
+}
+.yt-thumb-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s;
+}
+.yt-thumb-card:hover .yt-thumb-wrap img { transform: scale(1.05); }
+.yt-play-btn {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 52px; height: 52px;
+  background: rgba(255,0,0,.88);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  transition: transform .2s, background .2s;
+}
+.yt-thumb-card:hover .yt-play-btn { transform: translate(-50%,-50%) scale(1.12); background: #ff0000; }
+.yt-card-body { padding: 16px 18px 20px; }
+.yt-card-body h4 { color: var(--navy); font-size: .95rem; margin-bottom: 6px; line-height: 1.4; font-family: "DM Sans", sans-serif; font-weight: 700; }
+.yt-card-body p { color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.yt-duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.8); color: #fff; font-size: .72rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+
 /* ── BLOG PAGE ── */
 #blog{display:none;padding:90px 8%;background:var(--off)}
 #blog.active{display:block}
@@ -463,6 +519,46 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
   z-index:9999;animation:dropDown .3s ease both;
 }
 
+
+/* ── TERMS MODAL ── */
+#terms-modal-overlay { display: none; }
+#terms-modal-overlay.active { display: flex !important; }
+#terms-scroll-body h4 { border-left: 3px solid #1a6faf; padding-left: 10px; }
+.consent-box {
+  background: #f4f8fc;
+  border: 1.5px solid #d0e4f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.consent-box.agreed {
+  background: #d4edda;
+  border-color: #28a745;
+}
+.consent-check {
+  width: 20px; height: 20px;
+  border: 2px solid #d0e4f0;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: #1a6faf;
+}
+.consent-label {
+  font-size: .83rem;
+  color: #1a2a3a;
+  line-height: 1.55;
+}
+.consent-label a {
+  color: #1a6faf;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 /* ── FLOATING BACK-TO-TOP ── */
 #btt{
   position:fixed;bottom:90px;right:32px;z-index:998;
@@ -663,17 +759,40 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
 <section id="video-section">
   <div class="section-tag reveal drop">Featured Content</div>
   <h2 class="section-title reveal drop reveal-delay-1">Expert Health Resources</h2>
-  <p class="section-sub reveal drop reveal-delay-2">Watch our latest videos — practical medical insights from Dr. Dammie Medic to help you make better health decisions.</p>
-  <div style="text-align:center">
-    <a href="https://youtube.com/@drdammiemedic?si=lTNr7Qe1v8P9xqNF" target="_blank" class="yt-channel-btn reveal drop reveal-delay-3">
-      ▶ Subscribe on YouTube — @drdammiemedic
+  <p class="section-sub reveal drop reveal-delay-2" style="margin:0 auto 28px">Watch our latest videos — practical medical insights from Dr. Dammie Medic to help you make better health decisions.</p>
+
+  <!-- Channel Banner Card -->
+  <div class="reveal drop reveal-delay-2" style="max-width:820px;margin:0 auto 36px">
+    <a href="https://youtube.com/@drdammiemedic" target="_blank" style="text-decoration:none">
+      <div style="background:linear-gradient(135deg,#0a2540 0%,#1a6faf 100%);border-radius:20px;padding:32px 36px;display:flex;align-items:center;gap:28px;box-shadow:0 16px 48px rgba(10,37,64,.18);transition:transform .25s;cursor:pointer" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#ff0000,#cc0000);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;box-shadow:0 8px 24px rgba(255,0,0,.4)">▶</div>
+        <div style="flex:1">
+          <div style="color:rgba(255,255,255,.7);font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">YouTube Channel</div>
+          <div style="color:#fff;font-size:1.3rem;font-weight:700;font-family:'Playfair Display',serif;margin-bottom:4px">Dr. Dammie Medic</div>
+          <div style="color:rgba(255,255,255,.65);font-size:.88rem">@drdammiemedic &nbsp;·&nbsp; Health Education &amp; Medical Insights</div>
+        </div>
+        <div style="background:rgba(255,0,0,.15);border:2px solid rgba(255,0,0,.5);border-radius:50px;padding:10px 22px;color:#fff;font-weight:700;font-size:.88rem;flex-shrink:0;white-space:nowrap">
+          🔔 Subscribe
+        </div>
+      </div>
     </a>
   </div>
-  <div class="yt-embed-wrap reveal reveal-delay-4">
-    <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=drdammiemedic&rel=0&modestbranding=1" title="Health Harmonics – Dr. Dammie Medic" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+
+  <!-- Latest Video Thumbnails (loaded live via YouTube RSS/oEmbed) -->
+  <div id="yt-home-grid" style="max-width:820px;margin:0 auto 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">
+    <!-- Skeleton loaders -->
+    <div class="yt-skeleton"></div>
+    <div class="yt-skeleton"></div>
+    <div class="yt-skeleton"></div>
   </div>
-  <p style="text-align:center;margin-top:20px;color:var(--muted);font-size:.87rem">
-    💡 For more videos, visit our <a href="#" onclick="showPage('blog');return false" style="color:var(--blue);font-weight:600">Blog &amp; Video Library →</a>
+
+  <div style="text-align:center;margin-top:8px">
+    <a href="https://youtube.com/@drdammiemedic" target="_blank" class="yt-channel-btn reveal drop reveal-delay-3">
+      ▶ View Full Channel — @drdammiemedic
+    </a>
+  </div>
+  <p style="text-align:center;margin-top:16px;color:var(--muted);font-size:.87rem">
+    For our full video library, visit our <a href="#" onclick="showPage('blog');return false" style="color:var(--blue);font-weight:600">Blog &amp; Video Library →</a>
   </p>
 </section>
 
@@ -819,20 +938,15 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
   <div style="margin-top:24px">
     <a href="https://youtube.com/@drdammiemedic?si=lTNr7Qe1v8P9xqNF" target="_blank" class="yt-channel-btn">▶ Visit YouTube Channel — @drdammiemedic</a>
   </div>
-  <div class="blog-grid" id="blogGrid">
-    <div class="video-card">
-      <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=drdammiemedic&index=1&rel=0" title="Video 1" allowfullscreen></iframe>
-      <div class="video-card-body"><h4>Latest from Dr. Dammie Medic</h4><p>Watch our most recent health education video — expert insights for better living.</p></div>
-    </div>
-    <div class="video-card">
-      <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=drdammiemedic&index=2&rel=0" title="Video 2" allowfullscreen></iframe>
-      <div class="video-card-body"><h4>Medical Knowledge Series</h4><p>Deep-dive health topics explained in simple, accessible language for everyone.</p></div>
-    </div>
-    <div class="video-card">
-      <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=drdammiemedic&index=3&rel=0" title="Video 3" allowfullscreen></iframe>
-      <div class="video-card-body"><h4>Wellness &amp; Prevention Tips</h4><p>Practical advice on staying healthy and preventing common medical conditions.</p></div>
-    </div>
-  </div>
+  <div id="blogGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;margin-top:0" >
+  <!-- Skeleton loaders shown while videos load -->
+  <div class="yt-skeleton" style="height:280px"></div>
+  <div class="yt-skeleton" style="height:280px"></div>
+  <div class="yt-skeleton" style="height:280px"></div>
+  <div class="yt-skeleton" style="height:280px"></div>
+  <div class="yt-skeleton" style="height:280px"></div>
+  <div class="yt-skeleton" style="height:280px"></div>
+</div>
   <p style="text-align:center;margin-top:36px;color:var(--muted);font-size:.9rem">
     More videos available on our <a href="https://youtube.com/@drdammiemedic" target="_blank" style="color:var(--blue);font-weight:600">YouTube channel →</a>
   </p>
@@ -936,7 +1050,19 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <input type="hidden" id="selectedDate">
       <input type="hidden" id="selectedTime">
     </div>
-    <button class="btn-submit" onclick="paystackConsult()">Pay &amp; Confirm Booking 🔒</button>
+    <!-- CONSENT CHECKBOX -->
+    <div class="consent-box" id="consent-box-wrap">
+      <input type="checkbox" class="consent-check" id="consent-check" onchange="toggleConsentBox(this)">
+      <label class="consent-label" for="consent-check">
+        I have read and agree to the
+        <a onclick="openTermsModal();return false;">Terms of Use, Telehealth Consent, Medical Disclaimer, and Privacy Notice</a>.
+        I understand this service is <strong>not for emergencies</strong> and that some conditions require in-person care.
+      </label>
+    </div>
+    <button class="btn-submit" id="consult-submit-btn" onclick="paystackConsult()" style="opacity:.5;pointer-events:none">
+      🔒 Pay &amp; Confirm Booking
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">You must agree to the terms above to proceed</p>
   </div>
 </div>
 
@@ -1136,6 +1262,54 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
 </div>
 
 <script>
+// ── TERMS MODAL ──
+function openTermsModal() {
+  var overlay = document.getElementById('terms-modal-overlay');
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTerms() {
+  var overlay = document.getElementById('terms-modal-overlay');
+  overlay.classList.remove('active');
+  // Don't restore scroll if consultation modal is still open
+  if(!document.querySelector('.modal-overlay.active')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function acceptTerms() {
+  // Tick the checkbox and enable the button
+  var chk = document.getElementById('consent-check');
+  if(chk) {
+    chk.checked = true;
+    toggleConsentBox(chk);
+  }
+  closeTerms();
+}
+
+function toggleConsentBox(chk) {
+  var btn = document.getElementById('consult-submit-btn');
+  var box = document.getElementById('consent-box-wrap');
+  if(chk.checked) {
+    if(btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+    if(box) box.classList.add('agreed');
+  } else {
+    if(btn) { btn.style.opacity = '.5'; btn.style.pointerEvents = 'none'; }
+    if(box) box.classList.remove('agreed');
+  }
+}
+
+// Close terms modal if clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+  var overlay = document.getElementById('terms-modal-overlay');
+  if(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if(e.target === overlay) closeTerms();
+    });
+  }
+});
+
 // ── PAGE ROUTING ──
 var pages = ['home','about','blog'];
 function showPage(name) {
@@ -1156,7 +1330,19 @@ document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click
 
 // ── MODALS ──
 function openModal(id) { document.getElementById('modal-'+id).classList.add('active'); document.body.style.overflow='hidden'; buildCalendar(); }
-function closeModal(id) { document.getElementById('modal-'+id).classList.remove('active'); document.body.style.overflow=''; }
+function closeModal(id) {
+  document.getElementById('modal-'+id).classList.remove('active');
+  document.body.style.overflow='';
+  // Reset consent if closing consultation modal
+  if(id === 'consultation') {
+    var chk = document.getElementById('consent-check');
+    var btn = document.getElementById('consult-submit-btn');
+    var box = document.getElementById('consent-box-wrap');
+    if(chk) chk.checked = false;
+    if(btn) { btn.style.opacity='.5'; btn.style.pointerEvents='none'; }
+    if(box) box.classList.remove('agreed');
+  }
+}
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', function(e){ if(e.target===this){ this.classList.remove('active'); document.body.style.overflow=''; } }));
 
 // ── TOAST ──
@@ -1271,7 +1457,7 @@ function selectTime(t) {
 }
 
 // ── PAYSTACK ──
-var PAYSTACK_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Replace with your real key
+var PAYSTACK_KEY = 'pk_test_352a08bf24ddb16eb1dffafd367edc7b37e49f8e';
 
 // ── SAVE REGISTRATION TO FIRESTORE ──
 // Delegated to window.saveRegistration defined in Firebase block above
@@ -1351,18 +1537,23 @@ function closeAllModals() {
 }
 
 function paystackConsult() {
+  var chk = document.getElementById('consent-check');
+  if(!chk || !chk.checked) {
+    showToast('⚠️ Please read and agree to the Terms & Consent before proceeding.');
+    return;
+  }
   var email = document.getElementById('c-email').value;
   var name  = (document.getElementById('c-fname').value + ' ' + document.getElementById('c-lname').value).trim();
   var type  = document.getElementById('c-type').value;
   var phone = document.getElementById('c-phone').value;
   var desc  = document.getElementById('c-desc').value;
   var price = type.includes('40,000') ? 40000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
-  paystackPay(email, price, {name, type, date:selectedDate?.toDateString(), time:selectedTime}, function(res) {
+  paystackPay(email, price, {service: type, name: name, type: type, date: selectedDate ? selectedDate.toDateString() : '', time: selectedTime || ''}, function(res) {
     if(window.saveRegistration) window.saveRegistration({
-      service: 'Medical/Surgical Consultation', type, name, email, phone,
-      description: desc, appointmentDate: selectedDate?.toDateString() || '',
+      service: 'Medical/Surgical Consultation', name: name, email: email, phone: phone,
+      description: desc, appointmentDate: selectedDate ? selectedDate.toDateString() : '',
       appointmentTime: selectedTime || '', amount: price,
-      paymentRef: res.reference, status: 'Paid'
+      paymentRef: res.reference, status: 'Paid', consentGiven: true
     });
   });
 }
@@ -1750,6 +1941,90 @@ function processOrderPayment() {
   </div>
 </div>
 
+
+<div id="terms-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(10,37,64,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;max-width:760px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(10,37,64,.3);overflow:hidden">
+    <!-- Header -->
+    <div style="padding:24px 32px 20px;border-bottom:1px solid #d0e4f0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <div>
+        <h3 style="font-family:'Playfair Display',serif;color:#0a2540;font-size:1.25rem;margin-bottom:4px">Terms of Use, Telehealth Consent &amp; Privacy Notice</h3>
+        <p style="color:#5a7080;font-size:.8rem">Health Harmonics Ltd. &mdash; Please read carefully before booking</p>
+      </div>
+      <button onclick="closeTerms()" style="background:none;border:1px solid #d0e4f0;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1.1rem;color:#5a7080;transition:all .2s;flex-shrink:0" onmouseover="this.style.background='#f4f8fc'" onmouseout="this.style.background='none'">&times;</button>
+    </div>
+    <!-- Scrollable body -->
+    <div style="overflow-y:auto;padding:28px 32px;flex:1;font-size:.87rem;line-height:1.75;color:#1a2a3a" id="terms-scroll-body">
+
+      <p style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:12px 16px;font-size:.83rem;margin-bottom:20px"><strong>⚠️ IMPORTANT:</strong> This platform is <strong>NOT</strong> an emergency service. If you have a life-threatening emergency, call your local emergency services or go immediately to the nearest hospital.</p>
+
+      <p style="color:#5a7080;font-size:.8rem;margin-bottom:20px"><strong>Effective Date:</strong> April 2025 &nbsp;|&nbsp; <strong>Last Updated:</strong> April 2025 &nbsp;|&nbsp; <strong>Website:</strong> healthharmonics.com.ng &nbsp;|&nbsp; <strong>Operator:</strong> Health Harmonics Ltd. &nbsp;|&nbsp; <strong>Email:</strong> healthharmonicshub@gmail.com &nbsp;|&nbsp; <strong>Phone:</strong> +234 808 162 0395</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">1. Introduction</h4>
+      <p>Welcome to Health Harmonics Ltd. This website and digital platform provide access to online health-related services, which may include: wellness and preventive health consultations; lifestyle medicine consultations; primary care consultations; review of medical conditions; second opinions; surgical consultations; specialist and subspecialty consultations; health education and coaching; follow-up consultations; triage and referral support; and related digital health support services.</p>
+      <p>By accessing or using this website, booking an appointment, submitting health information, or participating in any digital consultation through our platform, you acknowledge that you have read, understood, and agreed to be bound by this document. <strong>If you do not agree, do not use this website or any of our services.</strong></p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">2. Nature of the Platform and Scope of Services</h4>
+      <p>Health Harmonics Ltd. is a digital health platform that facilitates remote access to healthcare-related services. Services may be delivered through video consultation, audio consultation, telephone, messaging, email, secure forms, uploaded records, or other digital means approved by the platform. Our services include both clinical services (where a licensed healthcare professional provides medical assessment and advice) and non-clinical wellness services (guidance on preventive health, nutrition, activity, sleep, and lifestyle optimization). Not all services are appropriate for all conditions.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">3. No Emergency Service</h4>
+      <p>This platform is <strong>not</strong> an emergency service. Do <strong>not</strong> use this website for: chest pain; severe shortness of breath; stroke symptoms; severe bleeding; seizures; suicidal thoughts; loss of consciousness; severe trauma; obstetric or neonatal emergencies; or any rapidly worsening or life-threatening condition. <strong>Call emergency services or go immediately to the nearest hospital.</strong></p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">4. Telehealth and Virtual Consultation Consent</h4>
+      <p>By using this platform, you expressly consent to receiving healthcare-related services remotely. You understand and accept that: (1) virtual consultations have limitations compared with in-person care; (2) the clinician may be unable to perform a full physical examination; (3) diagnosis and treatment may depend partly on the accuracy and completeness of the information you provide; (4) technical limitations may affect clinical judgment; (5) some conditions cannot be safely assessed online; (6) you may be referred to another clinician or emergency service where necessary; (7) telehealth may involve privacy and cybersecurity risks despite reasonable safeguards; and (8) no outcome, diagnosis, or result can be guaranteed.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">5. Eligibility</h4>
+      <p>You confirm that you are at least 18 years old and legally competent to consent, or if under 18, you are using the platform through or with the consent of a parent, guardian, or legally authorized representative. If acting on behalf of another person, you confirm you have lawful authority to do so.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">6. Geographic and Regulatory Limitations</h4>
+      <p>Our services may be limited by location, professional licensure, facility access, prescribing rules, or local law. Use of the platform from outside Nigeria may be restricted. We reserve the right to refuse or limit services where regulatory, licensing, or patient-safety concerns arise.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">7. Nature of Medical Advice and Second Opinions</h4>
+      <p>Information provided through this platform is based on the facts, documents, history, and materials available at the time of consultation. Where the service is a second opinion, it is based on records made available to the reviewing clinician; it may differ from an earlier opinion and does not automatically invalidate another clinician's judgment. Where the service is a surgical consultation, virtual review is usually preliminary, and operative planning may require physical examination, imaging review, anesthesia assessment, and in-person consent.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">8. Wellness and Lifestyle Medicine Disclaimer</h4>
+      <p>Wellness and lifestyle medicine services are intended to support healthier living and are not a guarantee of prevention, reversal, remission, cure, or survival. They are not a substitute for emergency care or necessary in-person medical treatment. You agree to disclose relevant diagnoses, medications, allergies, pregnancy status, and physical limitations before acting on any wellness recommendation.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">9. No Doctor-Patient Relationship Until Accepted</h4>
+      <p>Your use of the website alone does not automatically create a doctor-patient relationship. A doctor-patient relationship arises only when your request is accepted by a licensed clinician through the platform, the clinician determines that the matter is appropriate for virtual care, and the consultation has commenced. We reserve the right not to accept a case.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">10. User Responsibilities</h4>
+      <p>You agree to: provide accurate, truthful, complete, and up-to-date information; upload genuine records and not impersonate another person; disclose your symptoms, medications, allergies, diagnoses, prior procedures, and relevant medical history; inform the clinician if your condition worsens; use the platform lawfully and respectfully; and comply with follow-up instructions, referrals, prescriptions, investigations, and safety advice. You must not misuse the platform for fraud or harassment, or seek controlled substances, false certificates, unlawful prescriptions, or inappropriate medical documentation.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">11. Prescription Policy</h4>
+      <p>Prescriptions and other clinical documents may be issued only when clinically justified, legally permitted, and within the clinician's professional judgment. We do not guarantee that any medication will be prescribed, renewed, or available. A clinician may refuse to prescribe where an in-person examination is required, the request is clinically unsafe, the medication is restricted or controlled, monitoring is needed, or identity cannot be verified.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">12. Fees, Payments, Cancellations, and Refunds</h4>
+      <p>Consultation fees shall be as listed on the platform or communicated before confirmation. By booking a consultation, you authorize the applicable charge. Fees may be non-refundable where a booking slot has been reserved, the clinician has reviewed records, the consultation has commenced, the user fails to attend, or the user is late beyond the permitted grace period. A refund or rescheduling may be offered at our discretion or as required by applicable law.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">13. Privacy and Data Protection</h4>
+      <p>We respect your privacy and process personal data in accordance with applicable law. We may collect identity data, contact data, health information and medical records, payment data, device information, consultation notes, and uploaded files. Your information may be used for identity verification, booking and delivering consultations, medical assessment and treatment, referrals, care coordination, quality assurance, legal and regulatory compliance, and fraud prevention. We implement reasonable administrative, technical, and organizational safeguards. However, no internet-based system is completely secure.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">14. Confidentiality and Consultation Recording</h4>
+      <p>We maintain professional confidentiality subject to lawful exceptions. We may disclose information without your prior consent where reasonably necessary to prevent serious harm, comply with court orders, or investigate fraud or unlawful use. Consultations will not be audio- or video-recorded by us unless stated and consented to. You may not record a consultation without prior notice and compliance with applicable law.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">15. Limitation of Liability</h4>
+      <p>To the fullest extent permitted by law, the platform and its clinicians do not guarantee diagnosis, recovery, cure, or fitness for a particular outcome. No liability is accepted for harm resulting from incomplete, inaccurate, withheld, falsified, or misleading information supplied by the user or third parties, or where the user fails to follow urgent referral advice, medication directions, or safety-netting instructions. Nothing in this document excludes liability that cannot lawfully be excluded, including liability arising from gross negligence, fraud, or willful misconduct.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">16. Intellectual Property</h4>
+      <p>All website content, branding, text, graphics, logos, videos, forms, workflows, and software elements belong to Health Harmonics Ltd. or its licensors. You may not copy, reproduce, distribute, modify, commercialize, or exploit any part of the website without prior written permission, except for lawful personal use.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">17. Complaints and Dispute Resolution</h4>
+      <p>If you are dissatisfied with any aspect of our service, please contact us at: <strong>Email:</strong> healthharmonicshub@gmail.com &nbsp;|&nbsp; <strong>Phone/WhatsApp:</strong> +234 808 162 0395. Complaints should include your name, consultation date, clinician name if known, and the nature of the complaint. Nothing in this document prevents a user from reporting a matter to the appropriate regulatory or legal authority.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">18. Governing Law</h4>
+      <p>This document shall be governed by the laws of the Federal Republic of Nigeria. The courts of Nigeria shall have jurisdiction in relation to disputes arising from or connected with the use of this website or services.</p>
+
+      <h4 style="color:#0a2540;font-size:.95rem;margin:20px 0 8px;font-family:'Playfair Display',serif">19. User Acknowledgment</h4>
+      <p>By clicking "I Agree" and "Pay &amp; Confirm Booking," you acknowledge and confirm that: (1) you have read and understood this document; (2) you understand the benefits and limitations of virtual care; (3) you understand that this platform is not for emergencies; (4) you consent to remote consultation and electronic communication; (5) you consent to the collection and processing of your personal and health data for lawful healthcare and operational purposes; (6) you understand that some cases require in-person review; (7) you understand that no diagnosis, prescription, or outcome is guaranteed; and (8) you agree to these terms.</p>
+
+    </div>
+    <!-- Footer buttons -->
+    <div style="padding:20px 32px;border-top:1px solid #d0e4f0;display:flex;gap:12px;justify-content:flex-end;flex-shrink:0;background:#f4f8fc">
+      <button onclick="closeTerms()" style="background:none;border:1px solid #d0e4f0;border-radius:50px;padding:10px 24px;font-size:.88rem;font-weight:600;cursor:pointer;color:#5a7080;font-family:'DM Sans',sans-serif;transition:all .2s">Close</button>
+      <button onclick="acceptTerms()" style="background:#1a6faf;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s">✓ I Have Read &amp; Agree</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MEDICAL INVOICE PAYMENT MODAL (triggered via email link) ══ -->
 <div class="modal-overlay" id="modal-invoice">
@@ -2368,6 +2643,134 @@ var _origAdminLogin = window.adminLogin;
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
+
+// ── YOUTUBE FEED LOADER ──
+// Uses RSS2JSON proxy (free, no API key needed) to fetch channel videos
+var YT_CHANNEL_ID = 'UCdrdammiemedic'; // placeholder — RSS uses handle
+var YT_RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent('https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID');
+
+// Fallback curated videos — will show while/if live feed loads
+// These use real thumbnail URLs that always work: img.youtube.com/vi/VIDEO_ID/mqdefault.jpg
+var YT_FALLBACK_VIDEOS = [
+  {
+    id: '_placeholder1_',
+    title: 'What You Must Know Before Any Surgery',
+    desc: 'Dr. Dammie Medic shares essential pre-surgery information every patient should know.',
+    thumb: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg'
+  },
+  {
+    id: '_placeholder2_',
+    title: 'Understanding Your Blood Test Results',
+    desc: 'A clear breakdown of common blood test values and what they mean for your health.',
+    thumb: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg'
+  },
+  {
+    id: '_placeholder3_',
+    title: 'Second Opinions — When and Why You Need One',
+    desc: 'How getting a second medical opinion can save you from unnecessary procedures.',
+    thumb: 'https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg'
+  }
+];
+
+function buildYtCard(video, openInline) {
+  var thumb = video.thumb || ('https://img.youtube.com/vi/' + video.id + '/mqdefault.jpg');
+  var link  = (video.id && video.id.length > 5 && video.id.indexOf('placeholder') < 0)
+              ? 'https://www.youtube.com/watch?v=' + video.id
+              : 'https://youtube.com/@drdammiemedic';
+  var tgt = openInline ? '' : 'target="_blank"';
+  var fallback = 'https://placehold.co/480x270/0a2540/ffffff?text=Dr.+Dammie+Medic';
+  var parts = [];
+  parts.push('<a class="yt-thumb-card" href="' + link + '" ' + tgt + ' rel="noopener">');
+  parts.push('<div class="yt-thumb-wrap">');
+  parts.push('<img src="' + thumb + '" alt="Health video" loading="lazy" data-fallback="' + fallback + '" onload="this.style.opacity=1" onerror="ytImgFail(this)">');
+  parts.push('<div class="yt-play-btn">&#9654;</div>');
+  parts.push('</div>');
+  parts.push('<div class="yt-card-body">');
+  parts.push('<h4>' + video.title + '</h4>');
+  parts.push('<p>' + (video.desc || 'Expert health insights from Dr. Dammie Medic.') + '</p>');
+  parts.push('</div></a>');
+  return parts.join('');
+}
+function ytImgFail(img) {
+  img.src = img.getAttribute('data-fallback') || 'https://placehold.co/480x270/0a2540/ffffff?text=Health+Harmonics';
+}
+
+function renderYtGrid(containerId, videos, maxCount) {
+  var container = document.getElementById(containerId);
+  if(!container) return;
+  var show = videos.slice(0, maxCount || videos.length);
+  container.innerHTML = show.map(function(v) { return buildYtCard(v, false); }).join('');
+}
+
+function loadYoutubeVideos() {
+  // Try to fetch live RSS via rss2json (free tier, 10k req/day)
+  // Channel ID for @drdammiemedic — fetched dynamically
+  var rssFeedUrl = 'https://www.youtube.com/feeds/videos.xml?user=drdammiemedic';
+  var apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssFeedUrl) + '&api_key=&count=12';
+
+  fetch(apiUrl)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if(data.status === 'ok' && data.items && data.items.length) {
+        var videos = data.items.map(function(item) {
+          // Extract video ID from link
+          var match = (item.link || '').match(/v=([a-zA-Z0-9_-]{11})/);
+          var id = match ? match[1] : '';
+          return {
+            id:    id,
+            title: item.title || 'Health Harmonics Video',
+            desc:  item.description ? item.description.replace(/<[^>]+>/g,'').slice(0,100) + '...' : '',
+            thumb: id ? ('https://img.youtube.com/vi/' + id + '/mqdefault.jpg') : ''
+          };
+        }).filter(function(v) { return v.id; });
+
+        if(videos.length) {
+          renderYtGrid('yt-home-grid', videos, 3);
+          renderYtGrid('blogGrid', videos, 9);
+          return;
+        }
+      }
+      // Fallback if RSS fails
+      useFallbackVideos();
+    })
+    .catch(function() {
+      useFallbackVideos();
+    });
+}
+
+function useFallbackVideos() {
+  // Show channel embed placeholder cards
+  var homeGrid = document.getElementById('yt-home-grid');
+  if(homeGrid) {
+    homeGrid.innerHTML = [
+      buildYtCard({id:'', title:'Latest from Dr. Dammie Medic', desc:'Click to visit our YouTube channel for the latest health education videos.', thumb:'https://placehold.co/480x270/0a2540/ffffff?text=Dr.+Dammie+Medic'}),
+      buildYtCard({id:'', title:'Medical Insights &amp; Education', desc:'Expert health tips and medical knowledge from our team of specialists.', thumb:'https://placehold.co/480x270/1a6faf/ffffff?text=Health+Education'}),
+      buildYtCard({id:'', title:'Subscribe for More', desc:'New health videos every week — subscribe to @drdammiemedic on YouTube.', thumb:'https://placehold.co/480x270/1b7c8a/ffffff?text=Subscribe+Now'})
+    ].join('');
+  }
+  var blogGrid = document.getElementById('blogGrid');
+  if(blogGrid) {
+    var cards = [];
+    var topics = [
+      ['Pre-Surgery Essentials','What every patient must know before any surgical procedure.','/0a2540/ffffff?text=Surgery+Guide'],
+      ['Blood Test Results Explained','Understanding your lab values and what they mean for your health.','/1a6faf/ffffff?text=Lab+Results'],
+      ['Second Opinion — When You Need One','How a second opinion can protect you from unnecessary treatment.','/1b7c8a/ffffff?text=Second+Opinion'],
+      ['Lifestyle Medicine Basics','Simple daily changes that dramatically improve your long-term health.','/c9952a/ffffff?text=Lifestyle+Med'],
+      ['Hypertension — Know Your Numbers','Everything you need to know about blood pressure and heart health.','/0a2540/ffffff?text=Blood+Pressure'],
+      ['Mental Wellness &amp; Medicine','The connection between mental health and physical wellbeing.','/1a6faf/ffffff?text=Mental+Health']
+    ];
+    topics.forEach(function(t) {
+      cards.push(buildYtCard({id:'', title:t[0], desc:t[1], thumb:'https://placehold.co/480x270' + t[2]}));
+    });
+    blogGrid.innerHTML = cards.join('');
+  }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadYoutubeVideos();
+});
+
 </script>
 
 </body>
