@@ -94,9 +94,9 @@
   // 3. Create an Email Template (use the template variables below) → copy the Template ID
   // 4. Go to Account → API Keys → copy your Public Key
   // 5. Replace the three values below:
-  const EMAILJS_SERVICE_ID  = 'service_2d3otvk';
-  const EMAILJS_TEMPLATE_ID = 'template_7zcd5my';
-  const EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
+  var EMAILJS_SERVICE_ID  = 'service_2d3otvk';
+  var EMAILJS_TEMPLATE_ID = 'template_7zcd5my';
+  var EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 </script>
 
@@ -1705,16 +1705,27 @@ async function saveRegistration(data) {
 
 // ── DOCTOR EMAIL ALERT ──
 function sendDoctorAlert(subject, details) {
+  // details can be a string (message body) or object
+  var msgBody   = (typeof details === 'string') ? details : JSON.stringify(details, null, 2);
+  var replyAddr = (typeof details === 'object' && details.patient_email)
+                  ? details.patient_email
+                  : 'noreply@healthharmonicsng.com';
   var params = {
-    to_email:    'healthharmonicshub@gmail.com',
-    to_name:     'Health Harmonics Team',
-    subject:     subject,
-    message:     details,
-    reply_to:    details.patient_email || 'noreply@healthharmonics.com'
+    to_email:   'healthharmonicshub@gmail.com',
+    to_name:    'Health Harmonics Team',
+    from_name:  'Health Harmonics Website',
+    subject:    subject,
+    message:    msgBody,
+    reply_to:   replyAddr
   };
+  console.log('Sending EmailJS alert:', subject);
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
-    .then(() => console.log('✅ Doctor alert sent'))
-    .catch(err => console.warn('EmailJS error:', err));
+    .then(function(res) {
+      console.log('✅ Doctor alert sent:', res.status, res.text);
+    })
+    .catch(function(err) {
+      console.error('❌ EmailJS error:', err);
+    });
 }
 
 function paystackPay(email, amount, meta, onSuccess) {
@@ -2357,7 +2368,10 @@ function processOrderPayment() {
         <h2 style="color:var(--navy);font-size:1.6rem;margin-bottom:4px">Admin Dashboard</h2>
         <p style="color:var(--muted);font-size:.88rem">Send payment requests to patients</p>
       </div>
-      <button onclick="adminLogout()" style="background:none;border:1px solid var(--border);border-radius:50px;padding:8px 20px;color:var(--muted);cursor:pointer;font-size:.85rem;transition:all .2s" onmouseover="this.style.borderColor='#dc3545';this.style.color='#dc3545'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Logout →</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="testEmailJS()" style="background:#1b7c8a;color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s">📧 Test Email Alert</button>
+        <button onclick="adminLogout()" style="background:none;border:1px solid var(--border);border-radius:50px;padding:8px 20px;color:var(--muted);cursor:pointer;font-size:.85rem;transition:all .2s" onmouseover="this.style.borderColor='#dc3545';this.style.color='#dc3545'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Logout →</button>
+      </div>
     </div>
 
     <!-- Send Invoice Card -->
@@ -2510,6 +2524,34 @@ function processOrderPayment() {
 <script>
 // ── ADMIN AUTH ──
 var ADMIN_PASSWORD = 'HealthHarmonics2025!'; // Change this to your preferred password
+
+function testEmailJS() {
+  var params = {
+    to_email:   'healthharmonicshub@gmail.com',
+    to_name:    'Health Harmonics Team',
+    from_name:  'Health Harmonics Website',
+    subject:    '🧪 TEST — EmailJS is working correctly',
+    message:    [
+      'This is a test email from your Health Harmonics website.',
+      '',
+      'If you are reading this, EmailJS is configured correctly.',
+      '',
+      'Sent at: ' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      'From: Admin Dashboard Test Button'
+    ].join('\n'),
+    reply_to:   'healthharmonicshub@gmail.com'
+  };
+  showToast('⏳ Sending test email...');
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(function(res) {
+      showToast('✅ Test email sent! Check healthharmonicshub@gmail.com inbox. Status: ' + res.status);
+      console.log('EmailJS test success:', res);
+    })
+    .catch(function(err) {
+      showToast('❌ EmailJS error: ' + (err.text || JSON.stringify(err)));
+      console.error('EmailJS test failed:', err);
+    });
+}
 
 function adminLogin() {
   var pw = document.getElementById('admin-pw').value;
@@ -2701,7 +2743,7 @@ function sendInvoiceEmail() {
   };
 
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, patientParams)
-    .then(() => {
+    .then(function() {
       fb.style.display = 'block';
       fb.style.background = '#d4edda'; fb.style.color = '#155724'; fb.style.border = '1px solid #28a745';
       fb.textContent = '✅ Payment link sent successfully to ' + email + '!';
@@ -2722,7 +2764,7 @@ function sendInvoiceEmail() {
       // Clear form
       ['adm-name','adm-email','adm-item','adm-amount','adm-note'].forEach(id => document.getElementById(id).value = '');
     })
-    .catch(err => {
+    .catch(function(err) {
       fb.style.display = 'block';
       fb.style.background = '#f8d7da'; fb.style.color = '#721c24'; fb.style.border = '1px solid #dc3545';
       fb.textContent = '❌ Failed to send email. Please check your EmailJS setup. Error: ' + err.text;
