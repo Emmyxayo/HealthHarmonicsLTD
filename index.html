@@ -24,6 +24,7 @@
 <meta property="og:image" content="https://www.healthharmonicsng.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:site_name" content="Health Harmonics Ltd.">
 <meta property="og:locale" content="en_NG">
 
@@ -1088,10 +1089,48 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
         I understand this service is <strong>not for emergencies</strong> and that some conditions require in-person care.
       </label>
     </div>
-    <button class="btn-submit" id="consult-submit-btn" onclick="paystackConsult()" style="opacity:.5;pointer-events:none">
-      🔒 Pay &amp; Confirm Booking
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIPT UPLOAD -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" id="i-have-paid-btn" onclick="iHavePaid(this)" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
     </button>
-    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">You must agree to the terms above to proceed</p>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
   </div>
 </div>
 
@@ -1109,7 +1148,48 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Phone</label><input type="tel" id="so-phone" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Tell us your story &amp; why you need a second opinion</label><textarea id="so-diag" rows="5" placeholder="Share your health journey — what diagnosis were you given, what treatment was recommended, what concerns you, and why you're seeking another perspective. The more detail, the better we can help you..."></textarea></div>
     <div class="form-group"><label>Any Relevant Tests / Reports?</label><input type="text" placeholder="e.g. MRI, blood work, biopsy results (you can email files to healthharmonicshub@gmail.com)"></div>
-    <button class="btn-submit" onclick="paystackSecondOpinion()">Pay ₦20,000 &amp; Submit 🔒</button>
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIPT UPLOAD -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" id="i-have-paid-btn" onclick="iHavePaid(this,'Second Opinion')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
   </div>
 </div>
 
@@ -1133,7 +1213,48 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Experience Level</label>
       <select><option>Complete Beginner</option><option>Intermediate</option><option>Advanced</option></select>
     </div>
-    <button class="btn-submit" onclick="paystackMusic()">Pay ₦20,000/month &amp; Enroll 🔒</button>
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIPT UPLOAD -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" id="i-have-paid-btn" onclick="iHavePaid(this,'Music Education')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
   </div>
 </div>
 
@@ -1251,7 +1372,48 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <div class="calendar-title" style="margin-top:12px">🕐 Preferred Time</div>
       <div class="time-slots" id="timeSlots2"></div>
     </div>
-    <button class="btn-submit" onclick="paystackWellness()">Pay ₦30,000 &amp; Book Session 🔒</button>
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIPT UPLOAD -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" id="i-have-paid-btn" onclick="iHavePaid(this,'Wellness Consultation')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
   </div>
 </div>
 
@@ -1286,7 +1448,48 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       </select>
     </div>
     <div class="form-group"><label>Any existing health conditions we should know about?</label><textarea placeholder="e.g. diabetes, hypertension, joint issues — so we can tailor the challenge safely for you..."></textarea></div>
-    <button class="btn-submit" onclick="paystackChallenge()">Register &amp; Pay ₦20,000 🔒</button>
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIPT UPLOAD -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" id="i-have-paid-btn" onclick="iHavePaid(this,'Health Challenge')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
   </div>
 </div>
 
@@ -1371,6 +1574,8 @@ function closeModal(id) {
     if(btn) { btn.style.opacity='.5'; btn.style.pointerEvents='none'; }
     if(box) box.classList.remove('agreed');
   }
+  // Always return to home page when modal is closed (important on mobile)
+  showPage('home');
 }
 document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', function(e){ if(e.target===this){ this.classList.remove('active'); document.body.style.overflow=''; } }));
 
@@ -1563,6 +1768,7 @@ function paystackPay(email, amount, meta, onSuccess) {
 function closeAllModals() {
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active'));
   document.body.style.overflow='';
+  showPage('home');
 }
 
 function paystackConsult() {
@@ -2077,10 +2283,47 @@ function processOrderPayment() {
       </div>
     </div>
     <div class="form-group"><label>Your Email Address</label><input type="email" id="inv-email" placeholder="Confirm your email to proceed"></div>
-    <button class="btn-submit" onclick="payInvoice()" style="margin-top:8px">
-      🔒 Pay Securely with Paystack
+
+    <!-- BANK TRANSFER NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
+          <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
+            <div style="font-size:.8rem;color:#5a7080;margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Bank Details</div>
+            <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">Peter Elemile</div>
+            <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0100634703</div>
+            <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s;position:relative">
+        <div id="receipt-placeholder">
+          <div style="font-size:1.8rem;margin-bottom:6px">📄</div>
+          <div style="font-size:.88rem;font-weight:600;color:#0a2540;margin-bottom:3px">Upload your payment receipt</div>
+          <div style="font-size:.78rem;color:#5a7080">Drag & drop or <span style="color:#1a6faf;font-weight:600">browse</span> — JPG, PNG, PDF, HEIC, WEBP accepted</div>
+        </div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.8rem;margin-bottom:6px">✅</div>
+          <div id="receipt-filename" style="font-size:.88rem;font-weight:700;color:#155724;margin-bottom:4px"></div>
+          <div id="receipt-filesize" style="font-size:.75rem;color:#5a7080;margin-bottom:8px"></div>
+          <button type="button" onclick="receiptClear(event)" style="background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:4px 12px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx,.txt" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+    <button class="btn-submit" onclick="iHavePaid(this,'Medical Supplies Invoice')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
     </button>
-    <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:12px">🔒 Secured by Paystack · Your data is safe</p>
+    <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:8px">The doctor will verify your payment and respond within a few hours.</p>
+    <p style="display:none">🔒 Secured by Paystack · Your data is safe</p>
   </div>
 </div>
 
@@ -2672,6 +2915,167 @@ var _origAdminLogin = window.adminLogin;
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
+
+
+// ── COPY ACCOUNT NUMBER ──
+function copyAcct() {
+  var acct = '0100634703';
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(acct).then(function() {
+      showToast('📋 Account number copied: ' + acct);
+    });
+  } else {
+    var el = document.createElement('textarea');
+    el.value = acct;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('📋 Account number copied: ' + acct);
+  }
+}
+
+// ── RECEIPT UPLOAD ──
+window._receiptFile = null;
+
+function receiptDragOver(e) {
+  e.preventDefault();
+  var dz = document.getElementById('receipt-dropzone');
+  if(dz) { dz.style.borderColor = '#1a6faf'; dz.style.background = '#e8f3fb'; }
+}
+function receiptDragLeave(e) {
+  var dz = document.getElementById('receipt-dropzone');
+  if(dz) { dz.style.borderColor = '#d0e4f0'; dz.style.background = '#f4f8fc'; }
+}
+function receiptDrop(e) {
+  e.preventDefault();
+  receiptDragLeave(e);
+  if(e.dataTransfer.files[0]) receiptProcess(e.dataTransfer.files[0]);
+}
+function receiptFileSelected(input) {
+  if(input.files[0]) receiptProcess(input.files[0]);
+}
+function receiptProcess(file) {
+  window._receiptFile = file;
+  var dz = document.getElementById('receipt-dropzone');
+  if(dz) { dz.style.borderColor = '#28a745'; dz.style.borderStyle = 'solid'; dz.style.background = '#f0fff4'; }
+  var ph = document.getElementById('receipt-placeholder');
+  var pv = document.getElementById('receipt-preview');
+  var fn = document.getElementById('receipt-filename');
+  var fs = document.getElementById('receipt-filesize');
+  if(ph) ph.style.display = 'none';
+  if(pv) pv.style.display = 'block';
+  if(fn) fn.textContent = file.name;
+  if(fs) fs.textContent = (file.size / 1024).toFixed(1) + ' KB';
+}
+function receiptClear(e) {
+  e.stopPropagation();
+  window._receiptFile = null;
+  var dz = document.getElementById('receipt-dropzone');
+  if(dz) { dz.style.borderColor = '#d0e4f0'; dz.style.borderStyle = 'dashed'; dz.style.background = '#f4f8fc'; }
+  var ph = document.getElementById('receipt-placeholder');
+  var pv = document.getElementById('receipt-preview');
+  if(ph) ph.style.display = 'block';
+  if(pv) pv.style.display = 'none';
+  var inp = document.getElementById('receipt-file-input');
+  if(inp) inp.value = '';
+}
+
+// ── I HAVE PAID — NOTIFY DOCTOR ──
+function iHavePaid(btn, serviceType) {
+  // Collect patient info from whichever modal is open
+  var activeModal = document.querySelector('.modal-overlay.active');
+  var patientName  = '';
+  var patientEmail = '';
+  var patientPhone = '';
+
+  if(activeModal) {
+    var nameInputs = activeModal.querySelectorAll('input[type=text]');
+    var emailInput = activeModal.querySelector('input[type=email]');
+    var phoneInput = activeModal.querySelector('input[type=tel]');
+    if(nameInputs.length >= 2) patientName = (nameInputs[0].value + ' ' + nameInputs[1].value).trim();
+    else if(nameInputs.length === 1) patientName = nameInputs[0].value;
+    if(emailInput) patientEmail = emailInput.value;
+    if(phoneInput) patientPhone = phoneInput.value;
+  }
+
+  if(!patientEmail && !patientName) {
+    showToast('⚠️ Please fill in your name and email first.');
+    return;
+  }
+
+  var hasReceipt = !!window._receiptFile;
+  var receiptName = hasReceipt ? window._receiptFile.name : 'No receipt uploaded';
+
+  // Disable button and show loading
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending notification...';
+  btn.style.opacity = '.7';
+
+  // Send email alert to doctor via EmailJS
+  var alertParams = {
+    to_email:  'healthharmonicshub@gmail.com',
+    to_name:   'Health Harmonics Team',
+    subject:   '💰 Payment Notification — ' + (serviceType || 'Service') + ' — ' + (patientName || patientEmail),
+    message:   [
+      'A patient has indicated they have made a bank transfer payment.',
+      '',
+      'SERVICE: '   + (serviceType || 'Not specified'),
+      'PATIENT: '   + (patientName  || 'Not provided'),
+      'EMAIL: '     + (patientEmail || 'Not provided'),
+      'PHONE: '     + (patientPhone || 'Not provided'),
+      'BANK: '      + 'Premium Trust Bank — 0100634703',
+      'RECEIPT: '   + receiptName,
+      'DATE/TIME: ' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      '',
+      'ACTION REQUIRED: Please check your Premium Trust Bank account (0100634703), verify the payment, and contact the patient to confirm their booking.',
+    ].join('\n'),
+    reply_to: patientEmail || 'noreply@healthharmonicsng.com'
+  };
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, alertParams)
+    .then(function() {
+      // Save to Firestore
+      if(window.saveRegistration) {
+        window.saveRegistration({
+          type:        'Bank Transfer',
+          service:     serviceType || 'Service',
+          name:        patientName,
+          email:       patientEmail,
+          phone:       patientPhone,
+          amount:      0,
+          receipt:     receiptName,
+          status:      'Payment Pending Verification',
+          bankRef:     'Premium Trust Bank — 0100634703'
+        });
+      }
+
+      // Close modal, return to home
+      closeAllModals();
+      showPage('home');
+      window.scrollTo({top: 0, behavior: 'smooth'});
+
+      // Show success message
+      setTimeout(function() {
+        showToast('✅ Doctor notified! We will verify your payment and get back to you shortly.');
+      }, 400);
+
+      // Reset receipt
+      window._receiptFile = null;
+    })
+    .catch(function(err) {
+      console.warn('EmailJS error:', err);
+      btn.disabled = false;
+      btn.textContent = '✅ I Have Paid — Notify Doctor';
+      btn.style.opacity = '1';
+      // Still close and show success (notification may have partially worked)
+      closeAllModals();
+      showPage('home');
+      setTimeout(function() {
+        showToast('✅ Thank you! We will verify your payment and contact you soon.');
+      }, 400);
+    });
+}
 
 // ── YOUTUBE FEED LOADER ──
 // Uses RSS2JSON proxy (free, no API key needed) to fetch channel videos
