@@ -758,6 +758,18 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <p>Join one of our structured health challenges — from weight management to fitness and mindfulness. Participate solo or with a group and track your progress with expert support.</p>
       <a href="#" class="btn-service" onclick="openModal('challenge');return false">Join a Challenge →</a>
     </div>
+    <div class="service-card reveal reveal-delay-3">
+      <div class="service-icon">👨‍👩‍👧‍👦</div>
+      <h3>Family Conferencing Services</h3>
+      <p>A safe, supportive, and professional platform for families to discuss health, wellness, and care-related concerns together — making informed decisions as a unit.</p>
+      <a href="#" class="btn-service" onclick="openModal('family');return false">Book Family Session →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-4">
+      <div class="service-icon">🏢</div>
+      <h3>Corporate Wellness &amp; Group Health</h3>
+      <p>Comprehensive wellness programs for workplaces, organizations, schools, churches, and community groups — health talks, seminars, screenings, and coaching.</p>
+      <a href="#" class="btn-service" onclick="openModal('corporate');return false">Get a Quote →</a>
+    </div>
   </div>
 </section>
 
@@ -946,6 +958,14 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
       <h3>🔍 Second Opinions That Matter</h3>
       <p>Unsure about a diagnosis or recommended surgery? Our experienced specialists offer clear, honest, and thorough second opinions to help you make confident, informed decisions about your health. We empower you with balanced insights so you can move forward with peace of mind.</p>
     </div>
+    <div class="about-service-card">
+      <h3>👨‍👩‍👧‍👦 Family Conferencing Services</h3>
+      <p>Our Family Conferencing Services provide a safe, supportive, and professional platform for families to discuss important health, wellness, lifestyle, and care-related concerns together. We help families have meaningful conversations, make informed decisions, and develop practical action plans that promote the wellbeing of every family member. Services include family health discussions, chronic disease support, lifestyle planning, elderly care planning, caregiver education, preventive health planning, and mediation around health decisions.</p>
+    </div>
+    <div class="about-service-card">
+      <h3>🏢 Corporate Wellness &amp; Group Health Services</h3>
+      <p>We provide comprehensive corporate wellness services for workplaces, organizations, institutions, professional groups, faith-based organizations, and informal sector groups. Services include workplace wellness programs, health talks and seminars, lifestyle medicine education, health screening and risk assessment, conference wellness sessions, and group wellness coaching — helping organizations build healthier, more productive communities.</p>
+    </div>
     <div class="about-service-card" style="grid-column:1/-1">
       <h3>🎵 Music Education &amp; Wellness</h3>
       <p>Discover the profound healing power of music. Through our structured online music school, students of all ages and levels learn to play instruments, develop their musical talents, and experience the emotional and cognitive benefits of music. We combine expert instruction with a focus on wellness, helping individuals reduce stress, improve focus, and express themselves creatively.</p>
@@ -1057,11 +1077,12 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div class="form-group"><label>Email</label><input type="email" id="c-email" placeholder="your@email.com"></div>
     <div class="form-group"><label>Phone</label><input type="tel" id="c-phone" placeholder="+234 800 000 0000"></div>
     <div class="form-group"><label>Type of Consultation</label>
-      <select id="c-type">
+      <select id="c-type" onchange="updateConsultFee(this.value)">
         <option>Medical Consultation (₦30,000)</option>
         <option>Surgical Consultation (₦40,000)</option>
         <option>Second Opinion (₦20,000)</option>
         <option>Follow-up Care (₦15,000)</option>
+        <option>Family Conferencing Session (₦100,000)</option>
       </select>
     </div>
     <div class="form-group"><label>Brief Description (optional)</label><textarea id="c-desc" placeholder="Describe your concern..."></textarea></div>
@@ -1094,7 +1115,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
-        <div>
+        <div style="width:100%">
           <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
           <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
           <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
@@ -1102,6 +1123,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
             <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">HEALTH HARMONICS LIMITED</div>
             <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
             <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0040251699</div>
+            <div style="margin-top:8px;font-size:.88rem;color:#0a2540">Amount Due: <strong id="consult-fee-display" style="color:#1a6faf;font-size:1rem">₦30,000</strong></div>
             <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
           </div>
         </div>
@@ -1153,7 +1175,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
-        <div>
+        <div style="width:100%">
           <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
           <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
           <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
@@ -1161,6 +1183,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
             <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">HEALTH HARMONICS LIMITED</div>
             <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
             <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0040251699</div>
+            <div style="margin-top:8px;font-size:.88rem;color:#0a2540">Amount Due: <strong id="consult-fee-display" style="color:#1a6faf;font-size:1rem">₦30,000</strong></div>
             <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
           </div>
         </div>
@@ -1218,7 +1241,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
-        <div>
+        <div style="width:100%">
           <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
           <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
           <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
@@ -1226,6 +1249,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
             <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">HEALTH HARMONICS LIMITED</div>
             <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
             <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0040251699</div>
+            <div style="margin-top:8px;font-size:.88rem;color:#0a2540">Amount Due: <strong id="consult-fee-display" style="color:#1a6faf;font-size:1rem">₦30,000</strong></div>
             <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
           </div>
         </div>
@@ -1377,7 +1401,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
-        <div>
+        <div style="width:100%">
           <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
           <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
           <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
@@ -1385,6 +1409,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
             <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">HEALTH HARMONICS LIMITED</div>
             <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
             <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0040251699</div>
+            <div style="margin-top:8px;font-size:.88rem;color:#0a2540">Amount Due: <strong id="consult-fee-display" style="color:#1a6faf;font-size:1rem">₦30,000</strong></div>
             <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
           </div>
         </div>
@@ -1453,7 +1478,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
     <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:18px 20px;margin-bottom:18px">
       <div style="display:flex;align-items:flex-start;gap:12px">
         <div style="font-size:1.5rem;flex-shrink:0">🔧</div>
-        <div>
+        <div style="width:100%">
           <div style="font-weight:700;color:#7a5800;font-size:.9rem;margin-bottom:6px">Paystack Currently Under Maintenance</div>
           <div style="color:#8a6a00;font-size:.83rem;line-height:1.6">Please make payment directly to our bank account below. After payment, upload your receipt and click <strong>"I Have Paid"</strong> — the doctor will verify and get back to you.</div>
           <div style="margin-top:12px;background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #f0c040">
@@ -1461,6 +1486,7 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
             <div style="font-size:.95rem;font-weight:700;color:#0a2540;margin-top:4px">HEALTH HARMONICS LIMITED</div>
             <div style="font-size:.88rem;color:#1a2a3a;margin-top:2px">Premium Trust Bank</div>
             <div style="font-size:1.1rem;font-weight:700;color:#1a6faf;margin-top:4px;letter-spacing:.08em">0040251699</div>
+            <div style="margin-top:8px;font-size:.88rem;color:#0a2540">Amount Due: <strong id="consult-fee-display" style="color:#1a6faf;font-size:1rem">₦30,000</strong></div>
             <button onclick="copyAcct()" style="margin-top:8px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#1a6faf';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='#1a6faf'">📋 Copy Account Number</button>
           </div>
         </div>
@@ -1793,7 +1819,7 @@ function paystackConsult() {
   var type  = document.getElementById('c-type').value;
   var phone = document.getElementById('c-phone').value;
   var desc  = document.getElementById('c-desc').value;
-  var price = type.includes('40,000') ? 40000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
+  var price = type.includes('40,000') ? 40000 : type.includes('100,000') ? 100000 : type.includes('20,000') ? 20000 : type.includes('15,000') ? 15000 : 30000;
   paystackPay(email, price, {service: type, name: name, type: type, date: selectedDate ? selectedDate.toDateString() : '', time: selectedTime || ''}, function(res) {
     if(window.saveRegistration) window.saveRegistration({
       service: 'Medical/Surgical Consultation', name: name, email: email, phone: phone,
@@ -1825,6 +1851,40 @@ function paystackMusic() {
     });
   });
 }
+function submitCorporate() {
+  var email = document.getElementById('corp-email').value || '';
+  var fname = document.getElementById('corp-fname').value || '';
+  var lname = document.getElementById('corp-lname').value || '';
+  var name  = (fname + ' ' + lname).trim() || 'Not provided';
+  var phone = document.getElementById('corp-phone').value || '';
+
+  sendDoctorAlert(
+    '🏢 New Corporate Wellness Enquiry — ' + name,
+    [
+      'SERVICE: Corporate Wellness & Group Health',
+      'CONTACT: ' + name,
+      'EMAIL: '   + email,
+      'PHONE: '   + phone,
+      'DATE: '    + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+      '',
+      'ACTION: Review enquiry details and contact the organization to discuss pricing and program details.'
+    ].join('\n')
+  );
+
+  if(window.saveRegistration) {
+    window.saveRegistration({
+      type: 'Corporate Enquiry', service: 'Corporate Wellness & Group Health',
+      name: name, email: email, phone: phone, amount: 0, status: 'Enquiry — Awaiting Quote'
+    });
+  }
+
+  closeAllModals();
+  showPage('home');
+  setTimeout(function() {
+    showToast('✅ Enquiry received! We will contact you with a customized proposal shortly.');
+  }, 400);
+}
+
 function paystackWellness() {
   var email = document.getElementById('w-email').value;
   var name  = (document.getElementById('w-fname').value + ' ' + document.getElementById('w-lname').value).trim();
@@ -2269,6 +2329,134 @@ function processOrderPayment() {
       <button onclick="closeTerms()" style="background:none;border:1px solid #d0e4f0;border-radius:50px;padding:10px 24px;font-size:.88rem;font-weight:600;cursor:pointer;color:#5a7080;font-family:'DM Sans',sans-serif;transition:all .2s">Close</button>
       <button onclick="acceptTerms()" style="background:#1a6faf;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s">✓ I Have Read &amp; Agree</button>
     </div>
+  </div>
+</div>
+
+
+<!-- Family Conferencing Modal -->
+<div class="modal-overlay" id="modal-family">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('family')">×</button>
+    <h3>👨‍👩‍👧‍👦 Family Conferencing Services</h3>
+    <p>A safe, professional platform for families to discuss health and wellness concerns together and make informed decisions.</p>
+
+    <!-- BANK NOTICE -->
+    <div style="background:linear-gradient(135deg,#fff8e8,#fff3cd);border:2px solid #f0c040;border-radius:14px;padding:16px 18px;margin-bottom:16px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:1.3rem;flex-shrink:0">🔧</div>
+        <div>
+          <div style="font-weight:700;color:#7a5800;font-size:.88rem;margin-bottom:4px">Paystack Currently Under Maintenance</div>
+          <div style="color:#8a6a00;font-size:.81rem;line-height:1.6">Please pay directly to our bank account. Upload your receipt and click <strong>"I Have Paid"</strong>.</div>
+          <div style="margin-top:10px;background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #f0c040">
+            <div style="font-size:.78rem;color:#5a7080;font-weight:700;text-transform:uppercase;margin-bottom:2px">Bank Details</div>
+            <div style="font-weight:700;color:#0a2540">HEALTH HARMONICS LIMITED</div>
+            <div style="color:#1a2a3a;font-size:.88rem">Premium Trust Bank</div>
+            <div style="font-size:1.05rem;font-weight:700;color:#1a6faf;letter-spacing:.08em">0040251699</div>
+            <div style="font-size:.88rem;color:#0a2540;margin-top:4px">Fee: <strong>₦100,000</strong></div>
+            <button onclick="copyAcct()" style="margin-top:6px;background:none;border:1px solid #1a6faf;color:#1a6faf;border-radius:20px;padding:3px 12px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📋 Copy Account Number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Contact Person Name</label><input type="text" id="fam-fname" placeholder="First name"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="fam-lname" placeholder="Last name"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="fam-email" placeholder="your@email.com"></div>
+    <div class="form-group"><label>Phone</label><input type="tel" id="fam-phone" placeholder="+234 800 000 0000"></div>
+    <div class="form-group"><label>Number of Family Members Joining</label>
+      <select>
+        <option>2–3 members</option><option>4–5 members</option>
+        <option>6–8 members</option><option>9+ members</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Primary Health Concern</label>
+      <select>
+        <option>Family Health &amp; Wellness Discussion</option>
+        <option>Chronic Disease Support (Hypertension, Diabetes, etc.)</option>
+        <option>Lifestyle &amp; Behaviour Change Planning</option>
+        <option>Elderly Care &amp; Support Planning</option>
+        <option>Caregiver Support &amp; Education</option>
+        <option>Family Preventive Health Planning</option>
+        <option>Mediation Around Health Decisions</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Brief Description</label><textarea placeholder="Tell us briefly about the family health concern you'd like to discuss..."></textarea></div>
+
+    <!-- Receipt Upload -->
+    <div class="form-group">
+      <label>📎 Upload Payment Receipt</label>
+      <div id="receipt-dropzone" onclick="document.getElementById('receipt-file-input').click()" ondragover="receiptDragOver(event)" ondragleave="receiptDragLeave(event)" ondrop="receiptDrop(event)"
+        style="border:2px dashed #d0e4f0;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#f4f8fc;transition:all .25s">
+        <div id="receipt-placeholder"><div style="font-size:1.6rem;margin-bottom:4px">📄</div>
+          <div style="font-size:.86rem;font-weight:600;color:#0a2540">Upload payment receipt</div>
+          <div style="font-size:.76rem;color:#5a7080">JPG, PNG, PDF accepted</div></div>
+        <div id="receipt-preview" style="display:none">
+          <div style="font-size:1.6rem">✅</div>
+          <div id="receipt-filename" style="font-size:.86rem;font-weight:700;color:#155724"></div>
+          <div id="receipt-filesize" style="font-size:.74rem;color:#5a7080"></div>
+          <button type="button" onclick="receiptClear(event)" style="margin-top:6px;background:none;border:1px solid #dc3545;color:#dc3545;border-radius:20px;padding:3px 10px;font-size:.74rem;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Remove</button>
+        </div>
+      </div>
+      <input type="file" id="receipt-file-input" accept="image/*,.pdf,.heic,.heif,.webp,.doc,.docx" style="display:none" onchange="receiptFileSelected(this)">
+    </div>
+
+    <button class="btn-submit" onclick="iHavePaid(this,'Family Conferencing')" style="background:linear-gradient(135deg,#28a745,#1e7e34);margin-top:4px">
+      ✅ I Have Paid — Notify Doctor
+    </button>
+    <p style="text-align:center;font-size:.75rem;color:#5a7080;margin-top:8px">The doctor will verify and confirm your session within a few hours.</p>
+  </div>
+</div>
+
+<!-- Corporate Wellness Modal -->
+<div class="modal-overlay" id="modal-corporate">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('corporate')">×</button>
+    <h3>🏢 Corporate Wellness &amp; Group Health</h3>
+    <p>Tell us about your organization and we'll design a customized wellness program for your team. Pricing depends on scope and size.</p>
+    <div class="form-row">
+      <div class="form-group"><label>Contact Name</label><input type="text" id="corp-fname" placeholder="First name"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="corp-lname" placeholder="Last name"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="corp-email" placeholder="your@email.com"></div>
+    <div class="form-group"><label>Phone / WhatsApp</label><input type="tel" id="corp-phone" placeholder="+234 800 000 0000"></div>
+    <div class="form-group"><label>Organization Name</label><input type="text" placeholder="e.g. Acme Ltd, RCCG Parish, Lagos State Polytechnic..."></div>
+    <div class="form-group"><label>Organization Type</label>
+      <select>
+        <option>Corporate / Private Company</option>
+        <option>Small / Medium Business</option>
+        <option>School / Academic Institution</option>
+        <option>Church / Faith-Based Organization</option>
+        <option>Professional Association</option>
+        <option>Community / NGO Group</option>
+        <option>Conference / Event / Retreat</option>
+        <option>Market / Informal Sector Group</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Estimated Group Size</label>
+      <select>
+        <option>Under 20 people</option><option>20–50 people</option>
+        <option>51–100 people</option><option>101–300 people</option>
+        <option>300+ people</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Services Interested In</label>
+      <select>
+        <option>Workplace Wellness Program</option>
+        <option>Health Talk / Seminar</option>
+        <option>Lifestyle Medicine Education</option>
+        <option>Health Screening &amp; Risk Assessment</option>
+        <option>Conference / Event Wellness Session</option>
+        <option>Group Wellness Coaching</option>
+        <option>Full Corporate Wellness Package</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Preferred Date / Period</label><input type="text" placeholder="e.g. May 2026, flexible, ASAP..."></div>
+    <div class="form-group"><label>Additional Details</label><textarea placeholder="Tell us more about what your organization needs — the more detail, the better we can tailor a proposal for you..."></textarea></div>
+    <button class="btn-submit" onclick="submitCorporate()">📋 Submit Enquiry — We'll Contact You</button>
   </div>
 </div>
 
@@ -2959,6 +3147,17 @@ var _origAdminLogin = window.adminLogin;
 })();
 
 
+// ── UPDATE CONSULTATION FEE DISPLAY ──
+function updateConsultFee(type) {
+  var display = document.getElementById('consult-fee-display');
+  if(!display) return;
+  var price = type.includes('40,000') ? '₦40,000' :
+              type.includes('100,000') ? '₦100,000' :
+              type.includes('20,000') ? '₦20,000' :
+              type.includes('15,000') ? '₦15,000' : '₦30,000';
+  display.textContent = price;
+}
+
 // ── COPY ACCOUNT NUMBER ──
 function copyAcct() {
   var acct = '0040251699';
@@ -3075,7 +3274,7 @@ function iHavePaid(btn, serviceType) {
     reply_to: patientEmail || 'noreply@healthharmonicsng.com'
   };
 
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, alertParams)
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, alertParams)
     .then(function() {
       // Save to Firestore
       if(window.saveRegistration) {
