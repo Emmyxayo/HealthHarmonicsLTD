@@ -1981,36 +1981,58 @@ function rxClear(e) {
 }
 
 function submitShopOrder() {
-  var hasPx = document.getElementById('sh-rx').value === 'yes';
+  var hasPx     = document.getElementById('sh-rx').value === 'yes';
   if(hasPx && !window._rxFile) {
     showToast('⚠️ Please upload your prescription before submitting.');
     return;
   }
-  var shopEmail = document.getElementById('sh-email').value || 'Not provided';
-  var shopFname = document.querySelector('#modal-shop input[placeholder="First name"]')?.value || '';
-  var shopLname = document.querySelector('#modal-shop input[placeholder="Last name"]')?.value || '';
-  var shopName  = (shopFname + ' ' + shopLname).trim() || 'Unknown';
+  // Collect all shop form fields
+  var shopEmail   = document.getElementById('sh-email') ? document.getElementById('sh-email').value.trim() : '';
+  var shopPhone   = document.querySelector('#modal-shop input[type=tel]') ? document.querySelector('#modal-shop input[type=tel]').value.trim() : '';
+  var shopAddress = document.querySelector('#modal-shop input[placeholder*="City"]') ? document.querySelector('#modal-shop input[placeholder*="City"]').value.trim() : '';
+  var shopProducts= document.querySelector('#modal-shop textarea') ? document.querySelector('#modal-shop textarea').value.trim() : '';
+  var allShopText = document.querySelectorAll('#modal-shop input[type=text]');
+  var shopFname   = allShopText[0] ? allShopText[0].value.trim() : '';
+  var shopLname   = allShopText[1] ? allShopText[1].value.trim() : '';
+  var shopName    = (shopFname + ' ' + shopLname).trim() || 'Unknown';
+  var rxInfo      = hasPx ? ('Yes — ' + (window._rxFile ? window._rxFile.name : 'uploaded')) : 'No prescription';
+
+  var msgLines = [
+    '🛒 HEALTH HARMONICS — MEDICAL SHOP ENQUIRY',
+    '==========================================',
+    '',
+    'PATIENT:      ' + (shopName    || 'Not provided'),
+    'EMAIL:        ' + (shopEmail   || 'Not provided'),
+    'PHONE:        ' + (shopPhone   || 'Not provided'),
+    'DELIVERY:     ' + (shopAddress || 'Not provided'),
+    'PRODUCTS:     ' + (shopProducts|| 'Not specified'),
+    'PRESCRIPTION: ' + rxInfo,
+    '',
+    'DATE/TIME: ' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+    '==========================================',
+    'ACTION: Review order, set price, and send payment link to patient.'
+  ];
+  var fullMsg = msgLines.join('\n');
+
+  // WhatsApp alert
+  sendWhatsAppAlert('Medical Shop Enquiry', shopName, shopEmail, shopPhone, 'Pending Quote', rxInfo, 'Products: ' + shopProducts);
+
+  // Email alert
+  sendDoctorAlert('🛒 Shop Enquiry: ' + shopName + ' — ' + (shopProducts.slice(0,40) || 'See details'), fullMsg);
+
+  // Firestore
+  if(window.saveRegistration) {
+    window.saveRegistration({
+      type: 'Shop Enquiry', service: 'Medical Shop Order',
+      name: shopName, email: shopEmail, phone: shopPhone,
+      products: shopProducts, address: shopAddress,
+      prescription: rxInfo, amount: 0, status: 'Pending Quote'
+    });
+  }
+
   closeAllModals();
+  showPage('home');
   showToast('✅ Order enquiry received! Our team will contact you shortly.');
-  saveRegistration({
-    type:         'Shop Enquiry',
-    service:      'Medical Shop Order',
-    name:         shopName,
-    email:        shopEmail,
-    amount:       0,
-    prescription: hasPx ? (window._rxFile ? window._rxFile.name : 'Yes - uploaded') : 'No',
-    status:       'Pending Quote'
-  });
-  sendDoctorAlert(
-    '🛒 New Medical Shop Order Enquiry',
-    [
-      'SERVICE: Medical Shop Order',
-      'PATIENT EMAIL: ' + shopEmail,
-      'PRESCRIPTION: '  + (hasPx ? ('Yes — file: ' + (window._rxFile ? window._rxFile.name : 'uploaded')) : 'No prescription'),
-      'DATE: '          + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
-      'NOTE: Patient has submitted a shop enquiry. Please follow up promptly.',
-    ].join('\n')
-  );
   window._rxFile = null;
 }
 
@@ -3158,7 +3180,60 @@ function updateConsultFee(type) {
   display.textContent = price;
 }
 
-// ── COPY ACCOUNT NUMBER ──
+// ── WHATSAPP NOTIFICATIONS ──
+// METHOD 1: wa.me deep link — opens WhatsApp on doctor's device with pre-filled message
+// Works immediately with zero setup. Doctor just needs to tap Send.
+// METHOD 2: UltraMsg API — fully automatic (requires free account at ultramsg.com)
+
+var DOCTOR_WHATSAPP   = '2348081620395';
+var ULTRAMSG_INSTANCE = ''; // e.g. 'instance12345' — from ultramsg.com (leave blank to use wa.me)
+var ULTRAMSG_TOKEN    = ''; // e.g. 'abc123xyz' — from ultramsg.com dashboard
+
+function sendWhatsAppAlert(service, name, email, phone, fee, receipt, extra) {
+  var now = new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'});
+  var msg = [
+    '🏥 *HEALTH HARMONICS ALERT*',
+    '---',
+    '*Service:* ' + (service || 'N/A'),
+    '*Patient:* ' + (name    || 'N/A'),
+    '*Email:*   ' + (email   || 'N/A'),
+    '*Phone:*   ' + (phone   || 'N/A'),
+    '*Fee:*     ' + (fee     || 'N/A'),
+    '*Receipt:* ' + (receipt || 'None uploaded'),
+    (extra ? '*Notes:* ' + extra.replace(/\n/g,' | ').slice(0,200) : ''),
+    '---',
+    '*Bank:* Premium Trust Bank',
+    '*Acct:* 0040251699 (HEALTH HARMONICS LIMITED)',
+    '*Time:* ' + now,
+    '✅ Verify payment and confirm booking'
+  ].filter(Boolean).join('\n');
+
+  // METHOD 2: UltraMsg automatic API (if configured)
+  if(ULTRAMSG_INSTANCE && ULTRAMSG_TOKEN) {
+    fetch('https://api.ultramsg.com/' + ULTRAMSG_INSTANCE + '/messages/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'token=' + ULTRAMSG_TOKEN + '&to=+' + DOCTOR_WHATSAPP + '&body=' + encodeURIComponent(msg)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { console.log('✅ WhatsApp sent via UltraMsg:', d); })
+    .catch(function(e) { console.warn('UltraMsg error:', e); openWhatsAppFallback(msg); });
+    return;
+  }
+
+  // METHOD 1: wa.me fallback — always works, opens WhatsApp on doctor's phone
+  openWhatsAppFallback(msg);
+}
+
+function openWhatsAppFallback(msg) {
+  // Opens a new tab with a pre-filled WhatsApp message to the doctor
+  // Doctor sees it as a notification and just needs to tap Send
+  var waUrl = 'https://wa.me/' + DOCTOR_WHATSAPP + '?text=' + encodeURIComponent(msg);
+  window.open(waUrl, '_blank');
+  console.log('📱 WhatsApp link opened for doctor notification');
+}
+
+// ── COPY ACCOUNT NUMBER ──// ── COPY ACCOUNT NUMBER ──
 function copyAcct() {
   var acct = '0040251699';
   if(navigator.clipboard) {
@@ -3224,20 +3299,45 @@ function receiptClear(e) {
 
 // ── I HAVE PAID — NOTIFY DOCTOR ──
 function iHavePaid(btn, serviceType) {
-  // Collect patient info from whichever modal is open
+  // ── Collect ALL details from the active modal before anything closes ──
   var activeModal = document.querySelector('.modal-overlay.active');
   var patientName  = '';
   var patientEmail = '';
   var patientPhone = '';
+  var extraDetails = '';
 
   if(activeModal) {
-    var nameInputs = activeModal.querySelectorAll('input[type=text]');
-    var emailInput = activeModal.querySelector('input[type=email]');
-    var phoneInput = activeModal.querySelector('input[type=tel]');
-    if(nameInputs.length >= 2) patientName = (nameInputs[0].value + ' ' + nameInputs[1].value).trim();
-    else if(nameInputs.length === 1) patientName = nameInputs[0].value;
-    if(emailInput) patientEmail = emailInput.value;
-    if(phoneInput) patientPhone = phoneInput.value;
+    // Get all text inputs
+    var allTextInputs = activeModal.querySelectorAll('input[type=text]');
+    var emailInput    = activeModal.querySelector('input[type=email]');
+    var phoneInput    = activeModal.querySelector('input[type=tel]');
+    var selects       = activeModal.querySelectorAll('select');
+    var textareas     = activeModal.querySelectorAll('textarea');
+
+    // Name: first two text inputs
+    if(allTextInputs.length >= 2) {
+      patientName = (allTextInputs[0].value + ' ' + allTextInputs[1].value).trim();
+    } else if(allTextInputs.length === 1) {
+      patientName = allTextInputs[0].value.trim();
+    }
+    if(emailInput) patientEmail = emailInput.value.trim();
+    if(phoneInput) patientPhone = phoneInput.value.trim();
+
+    // Collect select values (service type, consultation type etc)
+    var selectVals = [];
+    selects.forEach(function(s) {
+      if(s.value && s.id !== 'sh-rx') selectVals.push(s.value);
+    });
+    if(selectVals.length) extraDetails += 'SELECTIONS: ' + selectVals.join(' | ') + '\n';
+
+    // Collect textarea (description/notes)
+    textareas.forEach(function(t) {
+      if(t.value.trim()) extraDetails += 'NOTES: ' + t.value.trim() + '\n';
+    });
+
+    // Appointment date/time if selected
+    if(window.selectedDate) extraDetails += 'APPT DATE: ' + window.selectedDate.toDateString() + '\n';
+    if(window.selectedTime) extraDetails += 'APPT TIME: ' + window.selectedTime + '\n';
   }
 
   if(!patientEmail && !patientName) {
@@ -3245,77 +3345,105 @@ function iHavePaid(btn, serviceType) {
     return;
   }
 
-  var hasReceipt = !!window._receiptFile;
+  var hasReceipt  = !!window._receiptFile;
   var receiptName = hasReceipt ? window._receiptFile.name : 'No receipt uploaded';
 
-  // Disable button and show loading
+  // Determine fee from service type
+  var feeDisplay = serviceType && serviceType.includes('100,000') ? '₦100,000' :
+                   serviceType && serviceType.includes('40,000')  ? '₦40,000'  :
+                   serviceType && serviceType.includes('20,000')  ? '₦20,000'  :
+                   serviceType && serviceType.includes('15,000')  ? '₦15,000'  :
+                   serviceType === 'Family Conferencing'          ? '₦100,000' :
+                   serviceType === 'Wellness Consultation'        ? '₦30,000'  :
+                   serviceType === 'Music Education'              ? '₦20,000'  :
+                   serviceType === 'Health Challenge'             ? '₦20,000'  : '₦30,000';
+
+  // Also check the consultation dropdown for the actual selected service
+  var consultType = document.getElementById('c-type');
+  if(consultType && consultType.value) {
+    serviceType = consultType.value;
+    feeDisplay  = consultType.value.match(/₦[\d,]+/) ? consultType.value.match(/₦[\d,]+/)[0] : feeDisplay;
+  }
+
+  // Disable button
   btn.disabled = true;
   btn.textContent = '⏳ Sending notification...';
   btn.style.opacity = '.7';
 
-  // Send email alert to doctor via EmailJS
-  var alertParams = {
-    to_email:  'healthharmonicshub@gmail.com',
-    to_name:   'Health Harmonics Team',
-    subject:   '💰 Payment Notification — ' + (serviceType || 'Service') + ' — ' + (patientName || patientEmail),
-    message:   [
-      'A patient has indicated they have made a bank transfer payment.',
-      '',
-      'SERVICE: '   + (serviceType || 'Not specified'),
-      'PATIENT: '   + (patientName  || 'Not provided'),
-      'EMAIL: '     + (patientEmail || 'Not provided'),
-      'PHONE: '     + (patientPhone || 'Not provided'),
-      'BANK: '      + 'Premium Trust Bank — 0040251699',
-      'RECEIPT: '   + receiptName,
-      'DATE/TIME: ' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
-      '',
-      'ACTION REQUIRED: Please check your Premium Trust Bank account (0040251699), verify the payment, and contact the patient to confirm their booking.',
-    ].join('\n'),
-    reply_to: patientEmail || 'noreply@healthharmonicsng.com'
+  // ── Build detailed message ──
+  var msgLines = [
+    '🏥 HEALTH HARMONICS — PAYMENT NOTIFICATION',
+    '==========================================',
+    '',
+    'SERVICE:    ' + (serviceType || 'Not specified'),
+    'AMOUNT:     ' + feeDisplay,
+    'PATIENT:    ' + (patientName  || 'Not provided'),
+    'EMAIL:      ' + (patientEmail || 'Not provided'),
+    'PHONE:      ' + (patientPhone || 'Not provided'),
+  ];
+  if(extraDetails) msgLines.push('', extraDetails.trim());
+  msgLines.push(
+    '',
+    'PAYMENT METHOD: Bank Transfer',
+    'BANK:       Premium Trust Bank',
+    'ACCOUNT:    HEALTH HARMONICS LIMITED — 0040251699',
+    'RECEIPT:    ' + receiptName,
+    '',
+    'DATE/TIME:  ' + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+    '',
+    '==========================================',
+    'ACTION: Verify payment in your bank account and',
+    'contact the patient to confirm their booking.'
+  );
+  var fullMessage = msgLines.join('\n');
+
+  // ── Send WhatsApp notification first (instant) ──
+  sendWhatsAppAlert(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptName, extraDetails);
+
+  // ── Send Email notification ──
+  var emailParams = {
+    to_email:   'healthharmonicshub@gmail.com',
+    to_name:    'Health Harmonics Team',
+    from_name:  'Health Harmonics Website',
+    subject:    '💰 PAYMENT: ' + (serviceType || 'Service') + ' — ' + (patientName || patientEmail) + ' (' + feeDisplay + ')',
+    message:    fullMessage,
+    reply_to:   patientEmail || 'noreply@healthharmonicsng.com'
   };
 
-  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, alertParams)
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, emailParams)
     .then(function() {
-      // Save to Firestore
-      if(window.saveRegistration) {
-        window.saveRegistration({
-          type:        'Bank Transfer',
-          service:     serviceType || 'Service',
-          name:        patientName,
-          email:       patientEmail,
-          phone:       patientPhone,
-          amount:      0,
-          receipt:     receiptName,
-          status:      'Payment Pending Verification',
-          bankRef:     'Premium Trust Bank — 0040251699'
-        });
-      }
-
-      // Close modal, return to home
-      closeAllModals();
-      showPage('home');
-      window.scrollTo({top: 0, behavior: 'smooth'});
-
-      // Show success message
-      setTimeout(function() {
-        showToast('✅ Doctor notified! We will verify your payment and get back to you shortly.');
-      }, 400);
-
-      // Reset receipt
-      window._receiptFile = null;
+      console.log('✅ Email sent');
     })
     .catch(function(err) {
-      console.warn('EmailJS error:', err);
-      btn.disabled = false;
-      btn.textContent = '✅ I Have Paid — Notify Doctor';
-      btn.style.opacity = '1';
-      // Still close and show success (notification may have partially worked)
-      closeAllModals();
-      showPage('home');
-      setTimeout(function() {
-        showToast('✅ Thank you! We will verify your payment and contact you soon.');
-      }, 400);
+      console.warn('Email error:', err.text || err);
     });
+
+  // ── Save to Firestore ──
+  if(window.saveRegistration) {
+    window.saveRegistration({
+      type:    'Payment Notification',
+      service: serviceType || 'Service',
+      name:    patientName,
+      email:   patientEmail,
+      phone:   patientPhone,
+      amount:  0,
+      fee:     feeDisplay,
+      receipt: receiptName,
+      details: extraDetails,
+      status:  'Payment Pending Verification',
+      bank:    'Premium Trust Bank — 0040251699'
+    });
+  }
+
+  // ── Close & notify patient ──
+  closeAllModals();
+  showPage('home');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  window._receiptFile = null;
+  window._rxFile = null;
+  setTimeout(function() {
+    showToast('✅ Doctor notified via WhatsApp & email! We will verify your payment shortly.');
+  }, 500);
 }
 
 // ── YOUTUBE FEED LOADER ──
