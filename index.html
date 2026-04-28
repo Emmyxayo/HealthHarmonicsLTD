@@ -39,6 +39,7 @@
 <!-- Firebase: loaded synchronously so firebase is defined before any inline script uses it -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
   (function() {
     var firebaseConfig = {
@@ -53,6 +54,29 @@
       firebase.initializeApp(firebaseConfig);
     }
     var _db = firebase.firestore();
+
+    // Firebase Storage for receipt/prescription images
+    try {
+      if(firebase.storage) {
+        var _storage = firebase.storage();
+        window.uploadReceiptImage = function(file, patientName) {
+          if(!file) return Promise.resolve(null);
+          var filename = 'receipts/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+          var ref = _storage.ref().child(filename);
+          return ref.put(file).then(function() {
+            return ref.getDownloadURL();
+          }).then(function(url) {
+            console.log('✅ Receipt uploaded to Firebase Storage:', url);
+            return url;
+          }).catch(function(e) {
+            console.warn('Storage upload error:', e);
+            return null;
+          });
+        };
+      }
+    } catch(e) {
+      window.uploadReceiptImage = function() { return Promise.resolve(null); };
+    }
 
     window.saveRegistration = function(data) {
       return _db.collection('registrations').add(
@@ -3169,6 +3193,31 @@ var _origAdminLogin = window.adminLogin;
 })();
 
 
+// ── SEND EMAIL NOTIFICATION HELPER ──
+function sendEmailNotification(service, name, email, phone, fee, receipt, extra, fullMsg) {
+  var params = {
+    to_email:   'healthharmonicshub@gmail.com',
+    to_name:    'Health Harmonics Team',
+    from_name:  'Health Harmonics Website',
+    subject:    '💰 PAYMENT: ' + (service || 'Service') + ' — ' + (name || email) + ' (' + fee + ')',
+    message:    fullMsg || [
+      'SERVICE: '  + (service  || 'N/A'),
+      'PATIENT: '  + (name     || 'N/A'),
+      'EMAIL: '    + (email    || 'N/A'),
+      'PHONE: '    + (phone    || 'N/A'),
+      'FEE: '      + (fee      || 'N/A'),
+      'RECEIPT: '  + (receipt  || 'None'),
+      'DETAILS: '  + (extra    || 'None'),
+      'BANK: Premium Trust Bank — HEALTH HARMONICS LIMITED — 0040251699',
+      'TIME: '     + new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'})
+    ].join('\n'),
+    reply_to:   email || 'noreply@healthharmonicsng.com'
+  };
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, params)
+    .then(function() { console.log('✅ Email notification sent'); })
+    .catch(function(e)  { console.warn('Email error:', e.text || e); });
+}
+
 // ── UPDATE CONSULTATION FEE DISPLAY ──
 function updateConsultFee(type) {
   var display = document.getElementById('consult-fee-display');
@@ -3186,51 +3235,90 @@ function updateConsultFee(type) {
 // METHOD 2: UltraMsg API — fully automatic (requires free account at ultramsg.com)
 
 var DOCTOR_WHATSAPP   = '2348081620395';
-var ULTRAMSG_INSTANCE = ''; // e.g. 'instance12345' — from ultramsg.com (leave blank to use wa.me)
-var ULTRAMSG_TOKEN    = ''; // e.g. 'abc123xyz' — from ultramsg.com dashboard
+var ULTRAMSG_INSTANCE = 'instance172139';
+var ULTRAMSG_TOKEN    = 'qdoj4s2vvfyrvk2r';
 
 function sendWhatsAppAlert(service, name, email, phone, fee, receipt, extra) {
   var now = new Date().toLocaleString('en-NG', {timeZone:'Africa/Lagos'});
   var msg = [
-    '🏥 *HEALTH HARMONICS ALERT*',
-    '---',
-    '*Service:* ' + (service || 'N/A'),
-    '*Patient:* ' + (name    || 'N/A'),
-    '*Email:*   ' + (email   || 'N/A'),
-    '*Phone:*   ' + (phone   || 'N/A'),
-    '*Fee:*     ' + (fee     || 'N/A'),
-    '*Receipt:* ' + (receipt || 'None uploaded'),
-    (extra ? '*Notes:* ' + extra.replace(/\n/g,' | ').slice(0,200) : ''),
-    '---',
+    '🏥 *HEALTH HARMONICS — NEW NOTIFICATION*',
+    '─────────────────────────────',
+    '*Service:*  ' + (service || 'N/A'),
+    '*Patient:*  ' + (name    || 'N/A'),
+    '*Email:*    ' + (email   || 'N/A'),
+    '*Phone:*    ' + (phone   || 'N/A'),
+    '*Fee:*      ' + (fee     || 'N/A'),
+    '*Receipt:*  ' + (receipt || 'None uploaded'),
+    (extra ? '*Details:* ' + extra.replace(/\n/g,' | ').slice(0,300) : ''),
+    '─────────────────────────────',
     '*Bank:* Premium Trust Bank',
-    '*Acct:* 0040251699 (HEALTH HARMONICS LIMITED)',
+    '*Acct:* 0040251699',
+    '*Name:* HEALTH HARMONICS LIMITED',
     '*Time:* ' + now,
-    '✅ Verify payment and confirm booking'
+    '',
+    '✅ Please verify payment & confirm booking'
   ].filter(Boolean).join('\n');
 
-  // METHOD 2: UltraMsg automatic API (if configured)
-  if(ULTRAMSG_INSTANCE && ULTRAMSG_TOKEN) {
-    fetch('https://api.ultramsg.com/' + ULTRAMSG_INSTANCE + '/messages/chat', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: 'token=' + ULTRAMSG_TOKEN + '&to=+' + DOCTOR_WHATSAPP + '&body=' + encodeURIComponent(msg)
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(d) { console.log('✅ WhatsApp sent via UltraMsg:', d); })
-    .catch(function(e) { console.warn('UltraMsg error:', e); openWhatsAppFallback(msg); });
+  // Send text message first
+  sendUltraMsgText(msg);
+
+  // Send receipt image if uploaded (window._receiptFile or window._rxFile)
+  var imgFile = window._receiptFile || window._rxFile || null;
+  if(imgFile && imgFile.type && imgFile.type !== 'application/pdf') {
+    sendUltraMsgImage(imgFile, 'Receipt/Prescription from: ' + (name || 'Patient'));
+  }
+}
+
+function sendUltraMsgText(msg) {
+  if(!ULTRAMSG_INSTANCE || !ULTRAMSG_TOKEN) {
+    openWhatsAppFallback(msg);
     return;
   }
+  var url = 'https://api.ultramsg.com/' + ULTRAMSG_INSTANCE + '/messages/chat';
+  var body = 'token=' + encodeURIComponent(ULTRAMSG_TOKEN) +
+             '&to=%2B' + DOCTOR_WHATSAPP +
+             '&body=' + encodeURIComponent(msg);
+  fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: body
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { console.log('✅ WhatsApp text sent:', d.sent || d); })
+  .catch(function(e) {
+    console.warn('UltraMsg text error:', e);
+    openWhatsAppFallback(msg);
+  });
+}
 
-  // METHOD 1: wa.me fallback — always works, opens WhatsApp on doctor's phone
-  openWhatsAppFallback(msg);
+function sendUltraMsgImage(file, caption) {
+  if(!ULTRAMSG_INSTANCE || !ULTRAMSG_TOKEN) return;
+  // Convert file to base64 then send as image
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var base64data = e.target.result; // data:image/jpeg;base64,....
+    var url = 'https://api.ultramsg.com/' + ULTRAMSG_INSTANCE + '/messages/image';
+    var body = 'token=' + encodeURIComponent(ULTRAMSG_TOKEN) +
+               '&to=%2B' + DOCTOR_WHATSAPP +
+               '&image=' + encodeURIComponent(base64data) +
+               '&caption=' + encodeURIComponent(caption || 'Payment Receipt');
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: body
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { console.log('✅ WhatsApp image sent:', d.sent || d); })
+    .catch(function(e) { console.warn('UltraMsg image error:', e); });
+  };
+  reader.onerror = function() { console.warn('Could not read image file'); };
+  reader.readAsDataURL(file);
 }
 
 function openWhatsAppFallback(msg) {
-  // Opens a new tab with a pre-filled WhatsApp message to the doctor
-  // Doctor sees it as a notification and just needs to tap Send
   var waUrl = 'https://wa.me/' + DOCTOR_WHATSAPP + '?text=' + encodeURIComponent(msg);
   window.open(waUrl, '_blank');
-  console.log('📱 WhatsApp link opened for doctor notification');
+  console.log('📱 WhatsApp fallback link opened');
 }
 
 // ── COPY ACCOUNT NUMBER ──// ── COPY ACCOUNT NUMBER ──
@@ -3397,26 +3485,20 @@ function iHavePaid(btn, serviceType) {
   );
   var fullMessage = msgLines.join('\n');
 
-  // ── Send WhatsApp notification first (instant) ──
-  sendWhatsAppAlert(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptName, extraDetails);
-
-  // ── Send Email notification ──
-  var emailParams = {
-    to_email:   'healthharmonicshub@gmail.com',
-    to_name:    'Health Harmonics Team',
-    from_name:  'Health Harmonics Website',
-    subject:    '💰 PAYMENT: ' + (serviceType || 'Service') + ' — ' + (patientName || patientEmail) + ' (' + feeDisplay + ')',
-    message:    fullMessage,
-    reply_to:   patientEmail || 'noreply@healthharmonicsng.com'
-  };
-
-  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, emailParams)
-    .then(function() {
-      console.log('✅ Email sent');
-    })
-    .catch(function(err) {
-      console.warn('Email error:', err.text || err);
+  // ── Upload receipt image to Firebase Storage, then send WA + Email ──
+  var imgFile = window._receiptFile || window._rxFile || null;
+  if(imgFile && window.uploadReceiptImage) {
+    window.uploadReceiptImage(imgFile, patientName).then(function(imageUrl) {
+      var receiptInfo = imageUrl ? ('Uploaded: ' + imageUrl) : receiptName;
+      sendWhatsAppAlert(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptInfo, extraDetails);
+      sendEmailNotification(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptInfo, extraDetails, fullMessage);
     });
+  } else {
+    sendWhatsAppAlert(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptName, extraDetails);
+    sendEmailNotification(serviceType, patientName, patientEmail, patientPhone, feeDisplay, receiptName, extraDetails, fullMessage);
+  }
+
+  // ── Email sent via sendEmailNotification() function below ──
 
   // ── Save to Firestore ──
   if(window.saveRegistration) {
