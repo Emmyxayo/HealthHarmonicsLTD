@@ -41,101 +41,94 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
-  (function() {
-    var firebaseConfig = {
-      apiKey:            "AIzaSyBn46kTMbthNieJy0SCOg1FRZ8vylJDOPs",
-      authDomain:        "healthharmonics-830cd.firebaseapp.com",
-      projectId:         "healthharmonics-830cd",
-      storageBucket:     "healthharmonics-830cd.firebasestorage.app",
-      messagingSenderId: "281865920155",
-      appId:             "1:281865920155:web:8003c148335b4e864b303e"
-    };
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    var _db = firebase.firestore();
+// ══════════════════════════════════════════
+// FIREBASE INIT — exposes to window scope
+// ══════════════════════════════════════════
+(function initFirebase() {
+  var config = {
+    apiKey:            "AIzaSyBn46kTMbthNieJy0SCOg1FRZ8vylJDOPs",
+    authDomain:        "healthharmonics-830cd.firebaseapp.com",
+    projectId:         "healthharmonics-830cd",
+    storageBucket:     "healthharmonics-830cd.firebasestorage.app",
+    messagingSenderId: "281865920155",
+    appId:             "1:281865920155:web:8003c148335b4e864b303e"
+  };
 
-    // Firebase Storage for receipt/prescription images
-    try {
-      if(firebase.storage) {
-        var _storage = firebase.storage();
-        window.uploadReceiptImage = function(file, patientName) {
-          if(!file) return Promise.resolve(null);
-          var filename = 'receipts/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-          var ref = _storage.ref().child(filename);
-          return ref.put(file).then(function() {
-            return ref.getDownloadURL();
-          }).then(function(url) {
-            console.log('✅ Receipt uploaded to Firebase Storage:', url);
-            return url;
-          }).catch(function(e) {
-            console.warn('Storage upload error:', e);
-            return null;
-          });
-        };
-      }
-    } catch(e) {
-      window.uploadReceiptImage = function() { return Promise.resolve(null); };
+  function tryInit() {
+    if (typeof firebase === 'undefined') {
+      setTimeout(tryInit, 100);
+      return;
     }
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    var db = firebase.firestore();
+
+    window._db = db;
+    window._firebaseReady = true;
 
     window.saveRegistration = function(data) {
-      return _db.collection('registrations').add(
+      return db.collection('registrations').add(
         Object.assign({}, data, {
           createdAt: new Date().toISOString(),
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         })
       ).then(function() {
-        console.log('Saved:', data.service);
+        console.log('✅ Firestore saved:', data.service || data.type);
       }).catch(function(e) {
-        console.warn('Firestore error:', e);
+        console.error('❌ Firestore save error:', e.message);
       });
     };
 
     window.loadAllRegistrations = function() {
-      return _db.collection('registrations')
+      return db.collection('registrations')
         .orderBy('timestamp', 'desc')
         .get()
         .then(function(snap) {
-          var results = [];
+          var rows = [];
           snap.forEach(function(doc) {
-            results.push(Object.assign({ id: doc.id }, doc.data()));
+            rows.push(Object.assign({ id: doc.id }, doc.data()));
           });
-          console.log('✅ Loaded', results.length, 'records from Firestore');
-          return results;
+          console.log('✅ Loaded', rows.length, 'Firestore records');
+          return rows;
         })
         .catch(function(e) {
-          console.warn('OrderBy failed, falling back:', e.message);
-          return _db.collection('registrations').get().then(function(snap) {
-            var results = [];
+          console.warn('OrderBy failed, using fallback:', e.message);
+          return db.collection('registrations').get().then(function(snap) {
+            var rows = [];
             snap.forEach(function(doc) {
-              results.push(Object.assign({ id: doc.id }, doc.data()));
+              rows.push(Object.assign({ id: doc.id }, doc.data()));
             });
-            results.sort(function(a,b) {
-              return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1;
-            });
-            return results;
+            rows.sort(function(a,b) { return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1; });
+            return rows;
           });
         });
     };
 
-    window._firebaseReady = true;
-    console.log('Firebase ready');
-  })();
+    console.log('✅ Firebase ready');
+  }
+  tryInit();
+})();
 </script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-  // ── EMAILJS INIT ──
-  // SETUP INSTRUCTIONS (one-time, free):
-  // 1. Go to https://www.emailjs.com and create a free account
-  // 2. Add a Gmail service → connect healthharmonicshub@gmail.com → copy the Service ID
-  // 3. Create an Email Template (use the template variables below) → copy the Template ID
-  // 4. Go to Account → API Keys → copy your Public Key
-  // 5. Replace the three values below:
-  var EMAILJS_SERVICE_ID  = 'service_kwfhkrs';
-  var EMAILJS_TEMPLATE_ID = 'template_7zcd5my';
-  var EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+// ══════════════════════════════════════════
+// EMAILJS + PAYSTACK CREDENTIALS (window scope)
+// ══════════════════════════════════════════
+window.PAYSTACK_KEY     = 'pk_test_352a08bf24ddb16eb1dffafd367edc7b37e49f8e';
+window.EMAILJS_SERVICE_ID  = 'service_kwfhkrs';
+window.EMAILJS_TEMPLATE_ID = 'template_7zcd5my';
+window.EMAILJS_PUBLIC_KEY  = 'Z41lCNykYCvgwGRJr';
+
+function initEmailJS() {
+  if (typeof emailjs === 'undefined') {
+    setTimeout(initEmailJS, 100);
+    return;
+  }
+  emailjs.init({ publicKey: window.EMAILJS_PUBLIC_KEY });
+  window._emailjsReady = true;
+  console.log('✅ EmailJS ready');
+}
+initEmailJS();
 </script>
 
 <!-- Firebase SDK -->
@@ -1755,15 +1748,18 @@ function selectTime(t) {
 }
 
 // ── PAYSTACK ──
-var PAYSTACK_KEY = 'pk_test_352a08bf24ddb16eb1dffafd367edc7b37e49f8e';
+// PAYSTACK_KEY → window.PAYSTACK_KEY
 
 // ── SAVE REGISTRATION TO FIRESTORE ──
-// Delegated to window.saveRegistration defined in Firebase block above
-async function saveRegistration(data) {
+function saveRegistration(data) {
   if(window.saveRegistration) {
-    await window.saveRegistration(data);
+    window.saveRegistration(data);
   } else {
-    console.warn('Firebase not ready yet — registration not saved');
+    // Retry after 1s if Firebase not ready
+    setTimeout(function() {
+      if(window.saveRegistration) window.saveRegistration(data);
+      else console.warn('Firebase unavailable - not saved:', data);
+    }, 1000);
   }
 }
 
@@ -1783,7 +1779,7 @@ function sendDoctorAlert(subject, details) {
     reply_to:   replyAddr
   };
   console.log('Sending EmailJS alert:', subject);
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, params)
     .then(function(res) {
       console.log('✅ Doctor alert sent:', res.status, res.text);
     })
@@ -1795,7 +1791,7 @@ function sendDoctorAlert(subject, details) {
 function paystackPay(email, amount, meta, onSuccess) {
   if(!email) { showToast('⚠️ Please enter your email address'); return; }
   var handler = PaystackPop.setup({
-    key: PAYSTACK_KEY,
+    key: window.PAYSTACK_KEY,
     email: email,
     amount: amount * 100,
     currency: 'NGN',
@@ -2790,7 +2786,7 @@ function testEmailJS() {
     reply_to:   'healthharmonicshub@gmail.com'
   };
   showToast('⏳ Sending test email...');
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, params)
     .then(function(res) {
       showToast('✅ Test email sent! Check healthharmonicshub@gmail.com inbox. Status: ' + res.status);
       console.log('EmailJS test success:', res);
@@ -3006,7 +3002,7 @@ function sendInvoiceEmail() {
     reply_to: 'healthharmonicshub@gmail.com'
   };
 
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, patientParams)
+  emailjs.send(window.EMAILJS_SERVICE_ID, window.EMAILJS_TEMPLATE_ID, patientParams)
     .then(function() {
       fb.style.display = 'block';
       fb.style.background = '#d4edda'; fb.style.color = '#155724'; fb.style.border = '1px solid #28a745';
