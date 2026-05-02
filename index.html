@@ -100,7 +100,21 @@
           snap.forEach(function(doc) {
             results.push(Object.assign({ id: doc.id }, doc.data()));
           });
+          console.log('✅ Loaded', results.length, 'records from Firestore');
           return results;
+        })
+        .catch(function(e) {
+          console.warn('OrderBy failed, falling back:', e.message);
+          return _db.collection('registrations').get().then(function(snap) {
+            var results = [];
+            snap.forEach(function(doc) {
+              results.push(Object.assign({ id: doc.id }, doc.data()));
+            });
+            results.sort(function(a,b) {
+              return (b.createdAt||'') > (a.createdAt||'') ? 1 : -1;
+            });
+            return results;
+          });
         });
     };
 
@@ -2793,8 +2807,8 @@ function adminLogin() {
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'block';
     document.getElementById('admin-pw').value = '';
+    window._loadRetry = 0;
     loadRegistrations();
-    setTimeout(loadAndRenderRegistrations, 500);
   } else {
     showToast('❌ Incorrect password. Please try again.');
     document.getElementById('admin-pw').value = '';
@@ -2811,21 +2825,37 @@ function adminLogout() {
 // ── LOAD ALL REGISTRATIONS FROM FIRESTORE ──
 window._allRegistrations = [];
 
-async function loadRegistrations() {
+function loadRegistrations() {
   var tbody = document.getElementById('adm-table-body');
-  tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center;color:var(--muted)">⏳ Loading...</td></tr>';
-  try {
-    if(!window._firebaseReady || !window.loadAllRegistrations) {
-      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">⚠️ Firebase not ready. Please refresh the page.</td></tr>';
-      return;
+  if(!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center;color:#5a7080">⏳ Loading registrations...</td></tr>';
+
+  // If Firebase not ready yet, retry up to 10 times (every 500ms = 5 seconds)
+  if(!window._firebaseReady || !window.loadAllRegistrations) {
+    console.log('Firebase not ready, retrying...');
+    window._loadRetry = (window._loadRetry || 0) + 1;
+    if(window._loadRetry < 10) {
+      setTimeout(loadRegistrations, 500);
+    } else {
+      window._loadRetry = 0;
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">❌ Firebase not connecting. Please refresh the page and try again.</td></tr>';
     }
-    window._allRegistrations = await window.loadAllRegistrations();
-    renderTable(window._allRegistrations);
-    updateStats(window._allRegistrations);
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">❌ Error: ' + e.message + '</td></tr>';
-    console.error(e);
+    return;
   }
+  window._loadRetry = 0;
+
+  // Firebase is ready — load data
+  window.loadAllRegistrations()
+    .then(function(rows) {
+      window._allRegistrations = rows || [];
+      console.log('✅ Loaded', rows.length, 'registrations');
+      renderTable(window._allRegistrations);
+      updateStats(window._allRegistrations);
+    })
+    .catch(function(e) {
+      console.error('Firestore error:', e);
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:#dc3545">❌ Error loading data: ' + e.message + '<br><br><button onclick="loadRegistrations()" style="background:var(--blue);color:#fff;border:none;border-radius:20px;padding:8px 20px;cursor:pointer">Retry</button></td></tr>';
+    });
 }
 
 function renderTable(rows) {
@@ -3157,9 +3187,9 @@ function filterRegistrations() {
 }
 
 function exportCSV() {
-  if(!allRegistrations.length) { showToast('⚠️ No registrations to export yet.'); return; }
+  if(!(window._allRegistrations||[]).length) { showToast('⚠️ No registrations to export yet.'); return; }
   var headers = ['Name','Email','Phone','Service','Type/Challenge','Appointment Date','Appointment Time','Amount (NGN)','Payment Reference','Status','Date'];
-  var rows = allRegistrations.map(r => [
+  var rows = (window._allRegistrations||[]).map(r => [
     r.name||'', r.email||'', r.phone||'', r.service||'',
     r.type||r.challenge||'', r.appointmentDate||'', r.appointmentTime||'',
     r.amount||'', r.paymentRef||'', r.status||'', r.date||''
