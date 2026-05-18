@@ -804,6 +804,63 @@ footer{background:var(--navy);padding:60px 8% 28px;color:rgba(255,255,255,.7)}
   </div>
 </section>
 
+<!-- HEALTH INFO SNIPPET -->
+<section id="health-snippet" style="background:linear-gradient(135deg,#f4f8fc 0%,#e8f3fb 100%);padding:80px 8%;text-align:center">
+  <div class="reveal drop">
+    <div class="section-tag">Health Education</div>
+    <h2 class="section-title" style="margin-bottom:10px">Health Info Snippet</h2>
+    <p class="section-sub" style="margin:0 auto 36px">
+      Practical health knowledge from the desk of Health Harmonics Ltd. — because an informed patient is an empowered patient.
+    </p>
+  </div>
+
+  <div class="reveal" style="max-width:680px;margin:0 auto;position:relative">
+    <div style="border-radius:20px;overflow:hidden;box-shadow:0 20px 64px rgba(10,37,64,.18);border:3px solid #fff;cursor:zoom-in;position:relative" onclick="openSnippetLightbox()">
+      <img
+        src="health-snippet.jpg"
+        alt="What Your Poop Says About Your Health — Health Harmonics Ltd."
+        style="width:100%;display:block;border-radius:18px;transition:transform .4s"
+        onmouseover="this.style.transform='scale(1.02)'"
+        onmouseout="this.style.transform='scale(1)'"
+        loading="lazy"
+      >
+      <div style="position:absolute;bottom:14px;right:14px;background:rgba(10,37,64,.75);color:#fff;border-radius:50px;padding:6px 14px;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)">
+        🔍 Tap to enlarge
+      </div>
+    </div>
+    <p style="margin-top:18px;font-size:.88rem;color:var(--muted);font-style:italic;line-height:1.6">
+      <strong style="color:var(--navy)">Did you know?</strong> Your stool is a window into your digestive health. Save this infographic for reference — and if you notice anything concerning, <a href="#" onclick="openModal('consultation');return false" style="color:var(--blue);font-weight:700">book a consultation</a> with our doctors.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+      <a href="https://wa.me/?text=Check%20out%20this%20health%20info%20from%20Health%20Harmonics%20Ltd.%20%F0%9F%8C%BF%0Ahttps%3A%2F%2Fwww.healthharmonicsng.com"
+         target="_blank"
+         style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:10px 20px;border-radius:50px;font-size:.85rem;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(37,211,102,.3)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="white"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.492.655 4.835 1.797 6.87L2 30l7.322-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.89c-.344-.172-2.036-1.004-2.352-1.118-.316-.115-.546-.172-.776.172-.23.344-.89 1.118-1.09 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.708-1.022-.912-1.712-2.038-1.912-2.382-.2-.344-.022-.53.15-.7.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.115-.23.058-.43-.028-.602-.086-.172-.776-1.872-1.064-2.562-.28-.672-.564-.58-.776-.59-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.206 1.178-1.206 2.872s1.234 3.332 1.406 3.562c.172.23 2.428 3.708 5.882 5.198.822.354 1.464.566 1.964.724.824.262 1.574.224 2.168.136.66-.098 2.036-.832 2.322-1.636.286-.804.286-1.492.2-1.636-.084-.144-.314-.23-.658-.402z"/></svg>
+        Share on WhatsApp
+      </a>
+      <a href="health-snippet.jpg" download="HealthHarmonics-HealthSnippet.jpg"
+         style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:50px;font-size:.85rem;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(10,37,64,.2)">
+        ⬇ Save Image
+      </a>
+    </div>
+  </div>
+
+  <div class="reveal" style="margin-top:40px;background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 28px;max-width:500px;margin-left:auto;margin-right:auto">
+    <div style="font-size:1.2rem;margin-bottom:6px">📬</div>
+    <div style="font-weight:700;color:var(--navy);font-size:.95rem;margin-bottom:4px">More health snippets coming weekly!</div>
+    <div style="color:var(--muted);font-size:.84rem">Subscribe to our newsletter to get the latest health education delivered straight to your inbox.</div>
+    <a href="#newsletter" style="display:inline-block;margin-top:14px;background:var(--blue);color:#fff;padding:9px 22px;border-radius:50px;font-size:.85rem;font-weight:700;text-decoration:none">Subscribe Free →</a>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div id="snippet-lightbox" onclick="closeSnippetLightbox()" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:16px;cursor:zoom-out">
+  <div style="position:relative;max-width:900px;width:100%;max-height:94vh;overflow-y:auto">
+    <button onclick="closeSnippetLightbox()" style="position:sticky;top:0;float:right;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;margin-bottom:8px">×</button>
+    <img src="health-snippet.jpg" alt="Health Info Snippet" style="width:100%;border-radius:12px;display:block">
+  </div>
+</div>
+
 <!-- HOW IT WORKS -->
 <section id="how">
   <div class="section-tag reveal drop">Simple Process</div>
@@ -3445,7 +3502,39 @@ function openWhatsAppFallback(msg) {
   console.log('📱 WhatsApp fallback link opened');
 }
 
-// ── COPY ACCOUNT NUMBER ──// ── COPY ACCOUNT NUMBER ──
+// ── SNIPPET MODAL ──
+function openSnippetModal() {
+  var modal = document.getElementById('snippet-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeSnippetModal() {
+  var modal = document.getElementById('snippet-modal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close with Escape key
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'Escape') closeSnippetModal();
+});
+
+// ── COPY ACCOUNT NUMBER ──// ── SNIPPET MODAL ──
+function openSnippetModal() {
+  var modal = document.getElementById('snippet-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeSnippetModal() {
+  var modal = document.getElementById('snippet-modal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close with Escape key
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'Escape') closeSnippetModal();
+});
+
+// ── COPY ACCOUNT NUMBER ──
 function copyAcct() {
   var acct = '0040251699';
   if(navigator.clipboard) {
@@ -3650,6 +3739,16 @@ function iHavePaid(btn, serviceType) {
   setTimeout(function() {
     showToast('✅ Doctor notified via WhatsApp & email! We will verify your payment shortly.');
   }, 500);
+}
+
+// ── SNIPPET LIGHTBOX ──
+function openSnippetLightbox() {
+  var lb = document.getElementById('snippet-lightbox');
+  if(lb) { lb.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeSnippetLightbox() {
+  var lb = document.getElementById('snippet-lightbox');
+  if(lb) { lb.style.display = 'none'; document.body.style.overflow = ''; }
 }
 
 // ── YOUTUBE FEED LOADER ──
